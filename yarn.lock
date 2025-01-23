@@ -1626,9 +1626,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@se-2/foundry@workspace:packages/foundry":
+"@trust-protocol/foundry@workspace:packages/foundry":
   version: 0.0.0-use.local
-  resolution: "@se-2/foundry@workspace:packages/foundry"
+  resolution: "@trust-protocol/foundry@workspace:packages/foundry"
   dependencies:
     dotenv: ~16.3.1
     envfile: ~6.18.0
@@ -1640,9 +1640,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@se-2/nextjs@workspace:packages/nextjs":
+"@trust-protocol/nextjs@workspace:packages/nextjs":
   version: 0.0.0-use.local
-  resolution: "@se-2/nextjs@workspace:packages/nextjs"
+  resolution: "@trust-protocol/nextjs@workspace:packages/nextjs"
   dependencies:
     "@heroicons/react": ~2.1.5
     "@rainbow-me/rainbowkit": 2.1.6
@@ -9168,9 +9168,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"se-2@workspace:.":
+"trust-protocol@workspace:.":
   version: 0.0.0-use.local
-  resolution: "se-2@workspace:."
+  resolution: "trust-protocol@workspace:."
   dependencies:
     husky: ~8.0.3
     lint-staged: ~13.2.2

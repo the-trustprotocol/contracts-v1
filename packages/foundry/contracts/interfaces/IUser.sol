@@ -3,7 +3,7 @@
 pragma solidity 0.8.28;
 import "./IBond.sol";
 
-interface IUserContract {
+interface IUser {
 
     /*
     --------------------------

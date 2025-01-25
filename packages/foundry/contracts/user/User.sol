@@ -2,11 +2,11 @@
 
 pragma solidity 0.8.28;
 
-import "./interfaces/IBond.sol";
-import "./interfaces/IUserContract.sol";
-import "./BondContract.sol";
+import "../interfaces/IBond.sol";
+import "../interfaces/IUser.sol";
+import "../bond/Bond.sol";
 
-contract UserContract is IUserContract {
+contract UserContract is IUser {
 
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(address => User) private userDetails;
@@ -34,7 +34,7 @@ contract UserContract is IUserContract {
     */
     function createBond(IBond.BondDetails memory _bond) external override returns(bool) {
         //checks
-        address newBond = address(new BondContract( //will replace bond contract with facotry bond contract
+        address newBond = address(new Bond( //will replace bond contract with facotry bond contract
             _bond.id,
             _bond.user1,
             _bond.user2,

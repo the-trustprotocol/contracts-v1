@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.28;
 
-import "./interfaces/IBond.sol";
+import "../interfaces/IBond.sol";
 
-contract BondContract is IBond {
+contract Bond is IBond {
 
     BondDetails public bond;
 

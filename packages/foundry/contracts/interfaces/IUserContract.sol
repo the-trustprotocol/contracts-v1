@@ -18,8 +18,9 @@ interface IUserContract {
     }
 
     event UserCreated(address userAddress, uint256 createdAt);
-    event BondCreated(uint256 id, address user1, address user2, uint256 user1Amount, uint256 user2Amount, uint256 totalBondAmount, uint256 createdAt);
+    event BondDeployed(uint256 id, address user1, address user2, uint256 user1Amount, uint256 user2Amount, uint256 totalBondAmount, uint256 createdAt);
 
     function getUserDetails(address _userAddress) external view returns(User memory);
+    function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory);
     function createBond(IBond.BondDetails memory _bond) external returns(bool);
 }

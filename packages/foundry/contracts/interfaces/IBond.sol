@@ -23,7 +23,7 @@ interface IBond {
     event BondBroken(uint256 id, address user1, address user2, uint256 user1Amount, uint256 user2Amount, uint256 totalBondAmount, uint256 createdAt);
     event BondFreezed(uint256 id, address user1, address user2, uint256 user1Amount, uint256 user2Amount, uint256 totalBondAmount, uint256 createdAt);
 
-    function getBondDetails(uint256 _id) external view returns(BondDetails memory);
+    // function getBondDetails(uint256 _id) external view returns(BondDetails memory);
     function withdrawBond(uint256 _id) external returns(BondDetails memory);
     function breakBond(uint256 _id) external returns(BondDetails memory);
     function freezeBond(uint256 _id) external returns(BondDetails memory);

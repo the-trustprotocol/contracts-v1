@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.28;
 
-import "../interfaces/IBond.sol";
+import "./interfaces/IBond.sol";
 
 contract Bond is IBond {
 

@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.28;
 
-import "../interfaces/IBond.sol";
-import "../interfaces/IUser.sol";
-import "../bond/Bond.sol";
+import "./interfaces/IBond.sol";
+import "./interfaces/IUser.sol";
+import "./Bond.sol";
 
 contract UserContract is IUser {
 

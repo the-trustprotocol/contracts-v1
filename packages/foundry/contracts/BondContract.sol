@@ -34,7 +34,11 @@ contract BondContract is IBond {
         emit BondCreated(_id, _user1, _user2, _user1Amount, _user2Amount, totalBondAmount, block.timestamp);
     }
 
-    // function getBondDetails(uint256 _id) external view override returns(BondDetails memory) {} // will add if needed
+    /*
+    ----------------------------------
+    ------EXTERNAL OPEN FUNCTIONS-----
+    ----------------------------------
+    */
 
     function withdrawBond(uint256 _id) external override returns(BondDetails memory) {
         //checks
@@ -58,5 +62,5 @@ contract BondContract is IBond {
 
     function freezeBond(uint256 _id) external override returns(BondDetails memory) {}
 
-
+    // function getBondDetails(uint256 _id) external view override returns(BondDetails memory) {} // will add if needed
 }

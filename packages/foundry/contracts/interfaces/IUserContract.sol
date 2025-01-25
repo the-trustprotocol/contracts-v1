@@ -5,6 +5,11 @@ import "./IBond.sol";
 
 interface IUserContract {
 
+    /*
+    --------------------------
+    ----------STRUCTS----------
+    --------------------------
+    */
     struct User {
         address userAddress;
         uint256 totalBonds;
@@ -17,8 +22,28 @@ interface IUserContract {
         uint256 createdAt;
     }
 
+    /*
+    --------------------------
+    ----------ERRORS----------
+    --------------------------
+    */
+
+
+    /*
+    --------------------------
+    ----------EVENTS----------
+    --------------------------
+    */
+
     event UserCreated(address userAddress, uint256 createdAt);
     event BondDeployed(uint256 id, address user1, address user2, uint256 user1Amount, uint256 user2Amount, uint256 totalBondAmount, uint256 createdAt);
+
+
+    /*
+    --------------------------
+    ----------FUNCTIONS----------
+    --------------------------
+    */
 
     function getUserDetails(address _userAddress) external view returns(User memory);
     function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory);

@@ -26,15 +26,12 @@ contract UserContract is IUserContract {
         userDetails[msg.sender] = newUser;
         emit UserCreated(msg.sender, block.timestamp);
     }
-
-    function getUserDetails(address _user) external view override returns(User memory) {
-        return userDetails[_user];
-    }
-
-    function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory) {
-        return bondDetails[_bondAddress];
-    }
-
+    
+    /*
+    ----------------------------------
+    ------EXTERNAL OPEN FUNCTIONS-----
+    ----------------------------------
+    */
     function createBond(IBond.BondDetails memory _bond) external override returns(bool) {
         //checks
         address newBond = address(new BondContract( //will replace bond contract with facotry bond contract
@@ -48,5 +45,18 @@ contract UserContract is IUserContract {
         emit BondDeployed(_bond.id, _bond.user1, _bond.user2, _bond.user1Amount, _bond.user2Amount, _bond.totalBondAmount, block.timestamp);
         return true;
 
+    }
+
+    /*
+    --------------------------
+    ------VIEW FUNCTIONS------
+    --------------------------
+    */
+    function getUserDetails(address _user) external view override returns(User memory) {
+        return userDetails[_user];
+    }
+
+    function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory) {
+        return bondDetails[_bondAddress];
     }
 }

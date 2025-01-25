@@ -1626,63 +1626,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trust-protocol/foundry@workspace:packages/foundry":
-  version: 0.0.0-use.local
-  resolution: "@trust-protocol/foundry@workspace:packages/foundry"
-  dependencies:
-    dotenv: ~16.3.1
-    envfile: ~6.18.0
-    ethers: ~5.7.1
-    prettier: ~2.8.8
-    qrcode: ~1.5.3
-    shx: ^0.3.4
-    toml: ~3.0.0
-  languageName: unknown
-  linkType: soft
-
-"@trust-protocol/nextjs@workspace:packages/nextjs":
-  version: 0.0.0-use.local
-  resolution: "@trust-protocol/nextjs@workspace:packages/nextjs"
-  dependencies:
-    "@heroicons/react": ~2.1.5
-    "@rainbow-me/rainbowkit": 2.1.6
-    "@tanstack/react-query": ~5.59.15
-    "@trivago/prettier-plugin-sort-imports": ~4.3.0
-    "@types/node": ~18.19.50
-    "@types/react": ~18.3.5
-    "@typescript-eslint/eslint-plugin": ~5.40.0
-    "@uniswap/sdk-core": ~5.8.2
-    "@uniswap/v2-sdk": ~4.6.1
-    abitype: 1.0.6
-    autoprefixer: ~10.4.20
-    blo: ~1.2.0
-    burner-connector: 0.0.9
-    daisyui: 4.12.10
-    eslint: ~8.57.1
-    eslint-config-next: ~14.2.15
-    eslint-config-prettier: ~8.10.0
-    eslint-plugin-prettier: ~5.2.1
-    next: ~14.2.11
-    next-nprogress-bar: ~2.3.13
-    next-themes: ~0.3.0
-    postcss: ~8.4.45
-    prettier: ~3.3.3
-    qrcode.react: ~4.0.1
-    react: ~18.3.1
-    react-copy-to-clipboard: ~5.1.0
-    react-dom: ~18.3.1
-    react-hot-toast: ~2.4.0
-    tailwindcss: ~3.4.11
-    type-fest: ~4.26.1
-    typescript: <5.6.0
-    usehooks-ts: ~3.1.0
-    vercel: ~39.1.3
-    viem: 2.21.54
-    wagmi: 2.13.4
-    zustand: ~5.0.0
-  languageName: unknown
-  linkType: soft
-
 "@sinclair/typebox@npm:0.25.24":
   version: 0.25.24
   resolution: "@sinclair/typebox@npm:0.25.24"
@@ -1928,6 +1871,63 @@ __metadata:
   checksum: 22bb311ca24f09eef25915a66727e7be113b703f196f6ea0589dc9730b11a6f1e5e4bcc468213101d138b570d310792c83abb8d9487c53f9e597942fea052b6e
   languageName: node
   linkType: hard
+
+"@trust-protocol/foundry@workspace:packages/foundry":
+  version: 0.0.0-use.local
+  resolution: "@trust-protocol/foundry@workspace:packages/foundry"
+  dependencies:
+    dotenv: ~16.3.1
+    envfile: ~6.18.0
+    ethers: ~5.7.1
+    prettier: ~2.8.8
+    qrcode: ~1.5.3
+    shx: ^0.3.4
+    toml: ~3.0.0
+  languageName: unknown
+  linkType: soft
+
+"@trust-protocol/nextjs@workspace:packages/nextjs":
+  version: 0.0.0-use.local
+  resolution: "@trust-protocol/nextjs@workspace:packages/nextjs"
+  dependencies:
+    "@heroicons/react": ~2.1.5
+    "@rainbow-me/rainbowkit": 2.1.6
+    "@tanstack/react-query": ~5.59.15
+    "@trivago/prettier-plugin-sort-imports": ~4.3.0
+    "@types/node": ~18.19.50
+    "@types/react": ~18.3.5
+    "@typescript-eslint/eslint-plugin": ~5.40.0
+    "@uniswap/sdk-core": ~5.8.2
+    "@uniswap/v2-sdk": ~4.6.1
+    abitype: 1.0.6
+    autoprefixer: ~10.4.20
+    blo: ~1.2.0
+    burner-connector: 0.0.9
+    daisyui: 4.12.10
+    eslint: ~8.57.1
+    eslint-config-next: ~14.2.15
+    eslint-config-prettier: ~8.10.0
+    eslint-plugin-prettier: ~5.2.1
+    next: ~14.2.11
+    next-nprogress-bar: ~2.3.13
+    next-themes: ~0.3.0
+    postcss: ~8.4.45
+    prettier: ~3.3.3
+    qrcode.react: ~4.0.1
+    react: ~18.3.1
+    react-copy-to-clipboard: ~5.1.0
+    react-dom: ~18.3.1
+    react-hot-toast: ~2.4.0
+    tailwindcss: ~3.4.11
+    type-fest: ~4.26.1
+    typescript: <5.6.0
+    usehooks-ts: ~3.1.0
+    vercel: ~39.1.3
+    viem: 2.21.54
+    wagmi: 2.13.4
+    zustand: ~5.0.0
+  languageName: unknown
+  linkType: soft
 
 "@ts-morph/common@npm:~0.11.0":
   version: 0.11.1
@@ -9168,15 +9168,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"trust-protocol@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "trust-protocol@workspace:."
-  dependencies:
-    husky: ~8.0.3
-    lint-staged: ~13.2.2
-  languageName: unknown
-  linkType: soft
-
 "semver@npm:6.3.1, semver@npm:^6.0.0, semver@npm:^6.3.1":
   version: 6.3.1
   resolution: "semver@npm:6.3.1"
@@ -10029,6 +10020,15 @@ __metadata:
   checksum: 49117f5f410d19c84b0464d29afb9642c863bc5ba40fcb9a245d474c6d5cc64d1b177a6e6713129eb346b40aebb9d4631d967517f9fbe8251c35b21b13cd96c7
   languageName: node
   linkType: hard
+
+"trust-protocol@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "trust-protocol@workspace:."
+  dependencies:
+    husky: ~8.0.3
+    lint-staged: ~13.2.2
+  languageName: unknown
+  linkType: soft
 
 "ts-api-utils@npm:^2.0.0":
   version: 2.0.0

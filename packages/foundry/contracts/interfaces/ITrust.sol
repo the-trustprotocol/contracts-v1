@@ -27,5 +27,5 @@ interface ITrust {
     */
     function getAnalytics() external view returns(Analytics memory);
 
-    function createWallet(IUserContract.User memory _user) external returns(bool);
+    function createWallet(IUser.User memory _user) external returns(bool);
 }

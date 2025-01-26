@@ -7,18 +7,42 @@ import "./interfaces/IUser.sol";
 import "./Bond.sol";
 import "./interfaces/IIdentityRegistry.sol";
 import "./interfaces/IIdentityResolver.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
+interface IBondFactory {
+    function createBond(
+        address _asset,
+        address _user1,
+        address _user2,
+        uint256 _user1Amount,
+        uint256 _user2Amount,
+        address _aavePoolAddress,
+        address _tokenInAddress
+    ) external returns (address);
+}
 contract User is IUser {
 
     IIdentityRegistry private immutable identityRegistry;
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
+    IBondFactory private bondFactory;
     UserDetails public user;
 
-    constructor(address _identityRegistry) {
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _identityRegistry, address _bondFactoryAddress) external initializer {
         require(_identityRegistry != address(0), "Invalid registry address");
+
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+
         identityRegistry = IIdentityRegistry(_identityRegistry);
-        
+        bondFactory = IBondFactory(_bondFactoryAddress);
+
         user = UserDetails({
             userAddress: msg.sender,
             totalBonds: 0,
@@ -38,20 +62,21 @@ contract User is IUser {
     ------EXTERNAL OPEN FUNCTIONS-----
     ----------------------------------
     */
-    function createBond(IBond.BondDetails memory _bond) external override returns(bool) {
-        //checks
-        address newBond = address(new Bond( //will replace bond contract with facotry bond contract
-            _bond.id,
+
+    function createBond(IBond.BondDetails memory _bond) external override returns (bool) {
+        address newBond = bondFactory.createBond(
+            _bond.asset,
             _bond.user1,
             _bond.user2,
             _bond.user1Amount,
-            _bond.user2Amount
-        ));
+            _bond.aavePoolAddress
+        );
+
         bondDetails[newBond] = _bond;
         emit BondDeployed(_bond.id, _bond.user1, _bond.user2, _bond.user1Amount, _bond.user2Amount, _bond.totalBondAmount, block.timestamp);
         return true;
-
     }
+
     function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory) {
         return bondDetails[_bondAddress];
     }

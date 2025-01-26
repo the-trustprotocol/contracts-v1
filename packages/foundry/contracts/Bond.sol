@@ -6,24 +6,34 @@ import "./interfaces/IBond.sol";
 import "./YieldProviderService.sol";
 import "./interfaces/IYieldProviderService.sol";
 import {IPool} from "@aave/interfaces/IPool.sol";
-contract Bond is IBond {
+import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuard {
 
     BondDetails public bond;
     mapping(address => uint256) individualAmount;
     IPool public aavePool;
     IYieldProviderService public YPS;
 
-    constructor(
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address _asset,
         address _user1,
         address _user2,
         uint256 _user1Amount,
-        address _aavePoolAddress,
-        address tokenInAddress
-    ) {
+        address _aavePoolAddress
+    ) external initializer {
+        __Ownable_init(msg.sender); //need to think who should be the owner
+        __UUPSUpgradeable_init();
 
         aavePool = IPool(_aavePoolAddress);
-        uint256 totalBondAmount = _user1Amount; //initially when we create a bond we have only user 1 amount, there is no point of adding user2 amount always it will be 0
+        uint256 totalBondAmount = _user1Amount;
+
         bond = BondDetails({
             asset: _asset,
             user1: _user1,
@@ -35,15 +45,15 @@ contract Bond is IBond {
             isActive: true,
             isFreezed: false
         });
-        individualAmount[msg.sender] = _user1Amount;    
+
+        individualAmount[_user1] = _user1Amount;
 
         address yieldProvider = address(new YieldProviderService(_aavePoolAddress));
         YPS = IYieldProviderService(yieldProvider);
-        YPS.stake(tokenInAddress, msg.sender, _user1Amount);
+        YPS.stake(_asset, _user1, _user1Amount);
 
         emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
     }
-
 
 
     /*
@@ -52,7 +62,7 @@ contract Bond is IBond {
     ----------------------------------
     */
 
-    function stake(uint256 _amount) external override returns(BondDetails memory) {
+    function stake(uint256 _amount) external nonReentrant override returns(BondDetails memory) {
         _onlyActive();
         // we should add only owner modifier here(i mean only the users can stake)
         individualAmount[msg.sender] = _amount;
@@ -61,7 +71,7 @@ contract Bond is IBond {
         return bond;
     }
 
-    function withdrawBond() external override  returns(BondDetails memory) {
+    function withdrawBond() external nonReentrant override returns(BondDetails memory) {
         _onlyActive();
         _freezed();
         uint256 withdrawable = individualAmount[msg.sender];
@@ -73,7 +83,7 @@ contract Bond is IBond {
         return bond;
     }
 
-    function breakBond() external override returns(BondDetails memory) {
+    function breakBond() external nonReentrant override returns(BondDetails memory) {
         _onlyActive();
         _freezed();
         YPS.withdrawBond(bond.asset, msg.sender, bond.totalBondAmount);

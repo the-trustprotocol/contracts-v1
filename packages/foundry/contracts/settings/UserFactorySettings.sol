@@ -6,6 +6,8 @@ pragma solidity 0.8.28;
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract UserFactorySettings is Ownable2StepUpgradeable, UUPSUpgradeable {
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -21,9 +23,10 @@ contract UserFactorySettings is Ownable2StepUpgradeable, UUPSUpgradeable {
 
     struct FeeConfig {
         uint256 flatFee;
-        uint256 percentageFee;  // in basis points (1% = 100)
-        address tokenAddress;    // address(0) for native token
-        bool isRegistered;      // whether this function has fees configured
+        uint256 percentageFee;  
+        address tokenAddress;    
+        address treasury;     
+        bool isRegistered;     
     }
 
     // Maps function selector to fee configuration
@@ -33,21 +36,25 @@ contract UserFactorySettings is Ownable2StepUpgradeable, UUPSUpgradeable {
         bytes4 indexed functionSelector,
         uint256 flatFee,
         uint256 percentageFee,
-        address tokenAddress
+        address tokenAddress,
+        address treasury
     );
 
     function registerFunctionFees(
         bytes4 functionSelector,
         uint256 flatFee,
         uint256 percentageFee,
-        address tokenAddress
+        address tokenAddress,
+        address treasury
     ) external onlyOwner {
         require(percentageFee <= 10000, "Percentage fee cannot exceed 100%");
+        require(treasury != address(0), "Invalid treasury address");
         
         functionFees[functionSelector] = FeeConfig({
             flatFee: flatFee,
             percentageFee: percentageFee,
             tokenAddress: tokenAddress,
+            treasury: treasury,
             isRegistered: true
         });
 
@@ -55,7 +62,8 @@ contract UserFactorySettings is Ownable2StepUpgradeable, UUPSUpgradeable {
             functionSelector,
             flatFee,
             percentageFee,
-            tokenAddress
+            tokenAddress,
+            treasury
         );
     }
 
@@ -63,14 +71,10 @@ contract UserFactorySettings is Ownable2StepUpgradeable, UUPSUpgradeable {
         delete functionFees[functionSelector];
     }
 
-    function collectFees(uint256 amount) external payable returns (uint256) {
-        // Get the function that called this method
+    function collectFees(address from, uint256 amount) external payable returns (uint256) {
         bytes4 functionSelector = msg.sig;
-        
-        // Get fee config for this function
         FeeConfig memory feeConfig = functionFees[functionSelector];
         
-        // If function is not registered, return without collecting fees
         if (!feeConfig.isRegistered) {
             require(msg.value == 0, "Fees not configured for this function");
             return 0;
@@ -85,14 +89,15 @@ contract UserFactorySettings is Ownable2StepUpgradeable, UUPSUpgradeable {
             // Native token
             require(msg.value >= totalFee, "Insufficient fee");
             if (msg.value > totalFee) {
-                payable(msg.sender).transfer(msg.value - totalFee);
+                payable(from).transfer(msg.value - totalFee);
             }
+            payable(feeConfig.treasury).transfer(totalFee);
         } else {
             // ERC20 token
             require(msg.value == 0, "Do not send ETH with ERC20 fee");
-            IERC20Upgradeable(feeConfig.tokenAddress).transferFrom(
-                msg.sender,
-                address(this),
+            IERC20(feeConfig.tokenAddress).transferFrom(
+                from,
+                feeConfig.treasury,
                 totalFee
             );
         }
@@ -100,7 +105,6 @@ contract UserFactorySettings is Ownable2StepUpgradeable, UUPSUpgradeable {
         return totalFee;
     }
 
-    // Helper function to get a function's selector
     function getFunctionSelector(string calldata functionSignature) external pure returns (bytes4) {
         return bytes4(keccak256(bytes(functionSignature)));
     }

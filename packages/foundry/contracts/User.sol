@@ -5,13 +5,20 @@ pragma solidity 0.8.28;
 import "./interfaces/IBond.sol";
 import "./interfaces/IUser.sol";
 import "./Bond.sol";
+import "./interfaces/IIdentityRegistry.sol";
+import "./interfaces/IIdentityResolver.sol";
 
 contract User is IUser {
 
+    IIdentityRegistry private immutable identityRegistry;
     mapping(address => IBond.BondDetails) private bondDetails;
+    mapping(string => bool) private verifiedIdentities;
     UserDetails public user;
 
-    constructor() {
+    constructor(address _identityRegistry) {
+        require(_identityRegistry != address(0), "Invalid registry address");
+        identityRegistry = IIdentityRegistry(_identityRegistry);
+        
         user = UserDetails({
             userAddress: msg.sender,
             totalBonds: 0,
@@ -47,5 +54,14 @@ contract User is IUser {
     }
     function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory) {
         return bondDetails[_bondAddress];
+    }
+
+    function verifyIdentity(string calldata identityTag, bytes calldata data) external returns (bool) {
+        address resolver = identityRegistry.getResolver(identityTag);
+        require(resolver != address(0), "Resolver not found");
+        
+        bool verified = IIdentityResolver(resolver).verify(data);
+        verifiedIdentities[identityTag] = verified;
+        return verified;
     }
 }

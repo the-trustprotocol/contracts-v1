@@ -34,11 +34,9 @@ contract UserFactory is IUserFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
     function createUser() public payable {
         // Collect fees
         settings.collectFees{value: msg.value}(msg.sender, msg.value);
-
         IUser user = new User();
         address userAddress = address(user);
         registry.setUserContract(msg.sender, userAddress);
-
         emit UserCreated(msg.sender, userAddress);
     }
 

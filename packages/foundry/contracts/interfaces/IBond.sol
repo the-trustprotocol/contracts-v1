@@ -10,11 +10,9 @@ interface IBond {
     --------------------------
     */
     struct BondDetails {
-        uint256 id;
         address asset;
         address user1;
         address user2;
-        // mapping(address => uint256) individualAmount;
         uint256 totalBondAmount;
         uint256 createdAt;
         bool isBroken;
@@ -35,10 +33,10 @@ interface IBond {
     ----------EVENTS----------
     --------------------------
     */
-    event BondCreated(uint256 indexed id, address user1, address user2, uint256 totalBondAmount, uint256 createdAt);
-    event BondWithdrawn(uint256 indexed id, address user1, address user2, address indexed withdrawnBy, uint256 totalBondAmount, uint256 createdAt);
-    event BondBroken(uint256 indexed id, address user1, address user2, address indexed brokenBy, uint256 totalBondAmount, uint256 createdAt);
-    event BondFreezed(uint256 indexed id, address user1, address user2, address indexed freezedbY, uint256 totalBondAmount, uint256 createdAt);
+    event BondCreated(address indexed bondAddress, address user1, address user2, uint256 totalBondAmount, uint256 createdAt);
+    event BondWithdrawn(address indexed bondAddress, address user1, address user2, address indexed withdrawnBy, uint256 totalBondAmount, uint256 createdAt);
+    event BondBroken(address indexed bondAddress, address user1, address user2, address indexed brokenBy, uint256 totalBondAmount, uint256 createdAt);
+    event BondFreezed(address indexed bondAddress, address user1, address user2, address indexed freezedbY, uint256 totalBondAmount, uint256 createdAt);
 
     /*
     --------------------------
@@ -46,9 +44,9 @@ interface IBond {
     --------------------------
     */
     // function getBondDetails(uint256 _id) external view returns(BondDetails memory);
-    function stake(uint256 _id, uint256 _amount) external;
-    function withdrawBond(uint256 _id) external;
-    function breakBond(uint256 _id) external;
+    function stake(uint256 _amount) external returns (BondDetails memory);
+    function withdrawBond() external returns (BondDetails memory);
+    function breakBond() external returns (BondDetails memory);
     function freezeBond(uint256 _id) external;
     function collectYield(uint256 _id) external;
 }

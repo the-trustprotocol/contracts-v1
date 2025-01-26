@@ -14,7 +14,6 @@ contract Bond is IBond {
     IYieldProviderService public YPS;
 
     constructor(
-        uint256 _id,
         address _asset,
         address _user1,
         address _user2,
@@ -54,6 +53,7 @@ contract Bond is IBond {
     */
 
     function stake(uint256 _amount) external override returns(BondDetails memory) {
+        _onlyActive();
         // we should add only owner modifier here(i mean only the users can stake)
         individualAmount[msg.sender] = _amount;
         bond.totalBondAmount += _amount;
@@ -62,10 +62,11 @@ contract Bond is IBond {
     }
 
     function withdrawBond() external override  returns(BondDetails memory) {
-        //checks
-        //logic
+        _onlyActive();
+        _freezed();
+        uint256 withdrawable = individualAmount[msg.sender];
         individualAmount[msg.sender] = 0;
-        YPS.withdrawBond(bond.asset, msg.sender, individualAmount[msg.sender]);
+        YPS.withdrawBond(bond.asset, msg.sender, withdrawable);
         bond.isWithdrawn = true;
         bond.isActive = false;
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
@@ -73,8 +74,8 @@ contract Bond is IBond {
     }
 
     function breakBond() external override returns(BondDetails memory) {
-        //checks
-        //logic
+        _onlyActive();
+        _freezed();
         YPS.withdrawBond(bond.asset, msg.sender, bond.totalBondAmount);
         bond.isBroken = true;
         bond.isActive = false;
@@ -94,7 +95,12 @@ contract Bond is IBond {
     ----------------------------------
     */
 
-    function supply( address asset, uint256 amount, address onBehalfOf) public {
-        aavePool.supply(asset, amount, onBehalfOf, 0);
+    function _onlyActive() private view {
+        if(!bond.isActive) revert BondNotActive();
     }
+
+    function _freezed() private view {
+        if(bond.isFreezed) revert BondIsFreezed();
+    }
+
 }

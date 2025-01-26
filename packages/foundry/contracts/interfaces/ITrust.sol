@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.28;
-import "./IUserContract.sol";
+import "./IUser.sol";
 interface ITrust {
 
     /*
@@ -27,5 +27,5 @@ interface ITrust {
     */
     function getAnalytics() external view returns(Analytics memory);
 
-    function createWallet(IUserContract.User memory _user) external returns(bool);
+    function createWallet(IUser.User memory _user) external returns(bool);
 }

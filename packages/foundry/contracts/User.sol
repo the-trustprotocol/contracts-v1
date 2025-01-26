@@ -6,13 +6,13 @@ import "./interfaces/IBond.sol";
 import "./interfaces/IUser.sol";
 import "./Bond.sol";
 
-contract UserContract is IUser {
+contract User is IUser {
 
     mapping(address => IBond.BondDetails) private bondDetails;
-    mapping(address => User) private userDetails;
+    UserDetails public user;
 
     constructor() {
-        User memory newUser = User({
+        user = UserDetails({
             userAddress: msg.sender,
             totalBonds: 0,
             totalAmount: 0,
@@ -23,7 +23,6 @@ contract UserContract is IUser {
             totalBrokenAmount: 0,
             createdAt: block.timestamp
         });
-        userDetails[msg.sender] = newUser;
         emit UserCreated(msg.sender, block.timestamp);
     }
     
@@ -46,16 +45,6 @@ contract UserContract is IUser {
         return true;
 
     }
-
-    /*
-    --------------------------
-    ------VIEW FUNCTIONS------
-    --------------------------
-    */
-    function getUserDetails(address _user) external view override returns(User memory) {
-        return userDetails[_user];
-    }
-
     function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory) {
         return bondDetails[_bondAddress];
     }

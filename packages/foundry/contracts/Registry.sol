@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "./interfaces/IRegistry.sol";
 
-contract Registry is Ownable2StepUpgradeable, UUPSUpgradeable {
+contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
   
     mapping(address => address) public addressToUserContracts;
     
@@ -12,11 +13,7 @@ contract Registry is Ownable2StepUpgradeable, UUPSUpgradeable {
     address[] public trustedUpdaters;
     
     mapping(address => bool) public isTrustedUpdater;
-
-    event UpdaterAdded(address indexed updater);
-    event UpdaterRemoved(address indexed updater);
-    event UserContractUpdated(address indexed user, address indexed contractAddress);
-
+ 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();

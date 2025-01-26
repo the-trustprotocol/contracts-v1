@@ -3,26 +3,31 @@
 pragma solidity 0.8.28;
 
 import "./interfaces/IBond.sol";
-
+import "./YieldProviderService.sol";
+import "./interfaces/IYieldProviderService.sol";
+import {IPool} from "@aave/interfaces/IPool.sol";
 contract Bond is IBond {
 
     BondDetails public bond;
+    mapping(address => uint256) individualAmount;
+    IPool public aavePool;
+    IYieldProviderService public YPS;
 
     constructor(
-        uint256 _id,
+        address _asset,
         address _user1,
         address _user2,
         uint256 _user1Amount,
-        uint256 _user2Amount
+        address _aavePoolAddress,
+        address tokenInAddress
     ) {
 
-        uint256 totalBondAmount = _user1Amount + _user2Amount;
+        aavePool = IPool(_aavePoolAddress);
+        uint256 totalBondAmount = _user1Amount; //initially when we create a bond we have only user 1 amount, there is no point of adding user2 amount always it will be 0
         bond = BondDetails({
-            id: _id, //will remove if not useful
+            asset: _asset,
             user1: _user1,
             user2: _user2,
-            user1Amount: _user1Amount,
-            user2Amount: _user2Amount,
             totalBondAmount: totalBondAmount,
             createdAt: block.timestamp,
             isBroken: false,
@@ -30,9 +35,16 @@ contract Bond is IBond {
             isActive: true,
             isFreezed: false
         });
+        individualAmount[msg.sender] = _user1Amount;    
 
-        emit BondCreated(_id, _user1, _user2, _user1Amount, _user2Amount, totalBondAmount, block.timestamp);
+        address yieldProvider = address(new YieldProviderService(_aavePoolAddress));
+        YPS = IYieldProviderService(yieldProvider);
+        YPS.stake(tokenInAddress, msg.sender, _user1Amount);
+
+        emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
     }
+
+
 
     /*
     ----------------------------------
@@ -40,27 +52,55 @@ contract Bond is IBond {
     ----------------------------------
     */
 
-    function withdrawBond(uint256 _id) external override returns(BondDetails memory) {
-        //checks
-        //logic
+    function stake(uint256 _amount) external override returns(BondDetails memory) {
+        _onlyActive();
+        // we should add only owner modifier here(i mean only the users can stake)
+        individualAmount[msg.sender] = _amount;
+        bond.totalBondAmount += _amount;
+        YPS.stake(bond.asset, address(this),  _amount);
+        return bond;
+    }
+
+    function withdrawBond() external override  returns(BondDetails memory) {
+        _onlyActive();
+        _freezed();
+        uint256 withdrawable = individualAmount[msg.sender];
+        individualAmount[msg.sender] = 0;
+        YPS.withdrawBond(bond.asset, msg.sender, withdrawable);
         bond.isWithdrawn = true;
         bond.isActive = false;
-        emit BondWithdrawn(_id, bond.user1, bond.user2, bond.user1Amount, bond.user2Amount, bond.totalBondAmount, block.timestamp);
+        emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
 
-    function breakBond(uint256 _id) external override returns(BondDetails memory) {
-        //checks
-        //logic
+    function breakBond() external override returns(BondDetails memory) {
+        _onlyActive();
+        _freezed();
+        YPS.withdrawBond(bond.asset, msg.sender, bond.totalBondAmount);
         bond.isBroken = true;
         bond.isActive = false;
-        emit BondBroken(_id, bond.user1, bond.user2, bond.user1Amount, bond.user2Amount, bond.totalBondAmount, block.timestamp);
+        emit BondBroken(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
 
-    function collectYield(uint256 _id) external override returns(BondDetails memory) {}
+    function collectYield(uint256 _id) external override {}
 
-    function freezeBond(uint256 _id) external override returns(BondDetails memory) {}
+    function freezeBond(uint256 _id) external override {}
 
-    // function getBondDetails(uint256 _id) external view override returns(BondDetails memory) {} // will add if needed
+
+
+    /*
+    ----------------------------------
+    ---------PRIVATE FUNCTIONS--------
+    ----------------------------------
+    */
+
+    function _onlyActive() private view {
+        if(!bond.isActive) revert BondNotActive();
+    }
+
+    function _freezed() private view {
+        if(bond.isFreezed) revert BondIsFreezed();
+    }
+
 }

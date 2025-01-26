@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.28;
 import "./IBond.sol";
@@ -10,7 +10,7 @@ interface IUser {
     ----------STRUCTS----------
     --------------------------
     */
-    struct User {
+    struct UserDetails {
         address userAddress;
         uint256 totalBonds;
         uint256 totalAmount;
@@ -35,8 +35,8 @@ interface IUser {
     --------------------------
     */
 
-    event UserCreated(address userAddress, uint256 createdAt);
-    event BondDeployed(uint256 id, address user1, address user2, uint256 user1Amount, uint256 user2Amount, uint256 totalBondAmount, uint256 createdAt);
+    event UserCreated(address indexed user, uint256 timestamp);
+    event BondDeployed(uint256 indexed id, address user1, address user2, uint256 user1Amount, uint256 user2Amount, uint256 totalAmount, uint256 timestamp);
 
 
     /*
@@ -44,8 +44,6 @@ interface IUser {
     ----------FUNCTIONS----------
     --------------------------
     */
-
-    function getUserDetails(address _userAddress) external view returns(User memory);
     function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory);
     function createBond(IBond.BondDetails memory _bond) external returns(bool);
 }

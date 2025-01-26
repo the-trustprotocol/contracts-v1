@@ -5,14 +5,21 @@ pragma solidity 0.8.28;
 import "./interfaces/IBond.sol";
 import "./interfaces/IUser.sol";
 import "./Bond.sol";
+import "./interfaces/IIdentityRegistry.sol";
+import "./interfaces/IIdentityResolver.sol";
 
-contract UserContract is IUser {
+contract User is IUser {
 
+    IIdentityRegistry private immutable identityRegistry;
     mapping(address => IBond.BondDetails) private bondDetails;
-    mapping(address => User) private userDetails;
+    mapping(string => bool) private verifiedIdentities;
+    UserDetails public user;
 
-    constructor() {
-        User memory newUser = User({
+    constructor(address _identityRegistry) {
+        require(_identityRegistry != address(0), "Invalid registry address");
+        identityRegistry = IIdentityRegistry(_identityRegistry);
+        
+        user = UserDetails({
             userAddress: msg.sender,
             totalBonds: 0,
             totalAmount: 0,
@@ -23,7 +30,6 @@ contract UserContract is IUser {
             totalBrokenAmount: 0,
             createdAt: block.timestamp
         });
-        userDetails[msg.sender] = newUser;
         emit UserCreated(msg.sender, block.timestamp);
     }
     
@@ -46,17 +52,16 @@ contract UserContract is IUser {
         return true;
 
     }
-
-    /*
-    --------------------------
-    ------VIEW FUNCTIONS------
-    --------------------------
-    */
-    function getUserDetails(address _user) external view override returns(User memory) {
-        return userDetails[_user];
-    }
-
     function getBondDetails(address _bondAddress) external view returns(IBond.BondDetails memory) {
         return bondDetails[_bondAddress];
+    }
+
+    function verifyIdentity(string calldata identityTag, bytes calldata data) external returns (bool) {
+        address resolver = identityRegistry.getResolver(identityTag);
+        require(resolver != address(0), "Resolver not found");
+        
+        bool verified = IIdentityResolver(resolver).verify(data);
+        verifiedIdentities[identityTag] = verified;
+        return verified;
     }
 }

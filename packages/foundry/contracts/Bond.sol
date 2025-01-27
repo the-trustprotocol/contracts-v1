@@ -2,20 +2,22 @@
 
 pragma solidity 0.8.28;
 
-import "./interfaces/IBond.sol";
+import {IBond} from "./interfaces/IBond.sol";
 import "./YieldProviderService.sol";
-import "./interfaces/IYieldProviderService.sol";
+import {IYieldProviderService} from "./interfaces/IYieldProviderService.sol";
 import {IPool} from "@aave/interfaces/IPool.sol";
-import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
-contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuard {
+import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from
+  "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
 
     BondDetails public bond;
     mapping(address => uint256) individualAmount;
+    mapping(address => bool) public isUser;
     IPool public aavePool;
     IYieldProviderService public YPS;
+
 
     constructor() {
         _disableInitializers();
@@ -28,7 +30,8 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         uint256 _user1Amount,
         address _aavePoolAddress
     ) external initializer {
-        __Ownable_init(msg.sender); //need to think who should be the owner
+        __Ownable_init(msg.sender); //need to think who should be the owner, we might not need this
+        __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
 
         aavePool = IPool(_aavePoolAddress);
@@ -47,7 +50,8 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         });
 
         individualAmount[_user1] = _user1Amount;
-
+        isUser[_user1] = true;
+        isUser[_user2] = true;
         address yieldProvider = address(new YieldProviderService(_aavePoolAddress));
         YPS = IYieldProviderService(yieldProvider);
         YPS.stake(_asset, _user1, _user1Amount);
@@ -64,7 +68,8 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
 
     function stake(uint256 _amount) external nonReentrant override returns(BondDetails memory) {
         _onlyActive();
-        // we should add only owner modifier here(i mean only the users can stake)
+        _onlyUser();
+
         individualAmount[msg.sender] = _amount;
         bond.totalBondAmount += _amount;
         YPS.stake(bond.asset, address(this),  _amount);
@@ -73,6 +78,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
 
     function withdrawBond() external nonReentrant override returns(BondDetails memory) {
         _onlyActive();
+        _onlyUser();
         _freezed();
         uint256 withdrawable = individualAmount[msg.sender];
         individualAmount[msg.sender] = 0;
@@ -85,6 +91,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
 
     function breakBond() external nonReentrant override returns(BondDetails memory) {
         _onlyActive();
+        _onlyUser();
         _freezed();
         YPS.withdrawBond(bond.asset, msg.sender, bond.totalBondAmount);
         bond.isBroken = true;
@@ -93,7 +100,9 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         return bond;
     }
 
-    function collectYield(uint256 _id) external override {}
+    function collectYield(uint256 _id) external override {
+        _onlyUser();
+    }
 
     function freezeBond(uint256 _id) external override {}
 
@@ -112,5 +121,13 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     function _freezed() private view {
         if(bond.isFreezed) revert BondIsFreezed();
     }
+
+    function _onlyUser() private view {
+        if(!isUser[msg.sender]) revert UserIsNotAOwnerForThisBond();
+    }
+
+    function _authorizeUpgrade(
+    address newImplementation
+  ) internal override onlyOwner { }
 
 }

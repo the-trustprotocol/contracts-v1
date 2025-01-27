@@ -29,6 +29,7 @@ interface IBond {
 
     error BondNotActive();
     error BondIsFreezed();
+    error UserIsNotAOwnerForThisBond();
 
 
     /*

@@ -2,11 +2,12 @@
 pragma solidity 0.8.28;
 
 import "../Bond.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract BondFactory is Ownable2StepUpgradeable, UUPSUpgradeable {
-    using ClonesUpgradeable for address;
+    using Clones for address;
 
     address public implementation;
 
@@ -16,7 +17,7 @@ contract BondFactory is Ownable2StepUpgradeable, UUPSUpgradeable {
     }
 
     function initialize(address _bondImplementation) external initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         implementation = _bondImplementation;
     }

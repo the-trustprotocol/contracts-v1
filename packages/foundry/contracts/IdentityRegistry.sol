@@ -6,7 +6,10 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
     mapping(string => address) private identityTagToResolver;
-    address[] private resolvers;
+    // address[] private resolvers;
+    mapping(address => bool) private resolverExists;
+
+    event ResolverAdded(string identityTag, address resolverContract);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -27,22 +30,15 @@ contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
         // Update mapping
         identityTagToResolver[identityTag] = resolverContract;
         
-        // Add to resolvers array if not already present
-        bool exists = false;
-        for(uint i = 0; i < resolvers.length; i++) {
-            if(resolvers[i] == resolverContract) {
-                exists = true;
-                break;
-            }
-        }
-        if(!exists) {
-            resolvers.push(resolverContract);
+        if(!resolverExists[resolverContract]) {
+            resolverExists[resolverContract] = true;
+            emit ResolverAdded(identityTag, resolverContract);
         }
     }
 
-    function getAllResolvers() external view returns (address[] memory) {
-        return resolvers;
-    }
+    // function getAllResolvers() external view returns (address[] memory) {
+    //     return resolvers;
+    // }
 
     function getResolver(string calldata identityTag) external view returns (address) {
         return identityTagToResolver[identityTag];

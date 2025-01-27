@@ -12,4 +12,4 @@ interface IRegistry {
     function addTrustedUpdater(address updater) external;
     function removeTrustedUpdater(address updater) external;
     function setUserContract(address user, address contractAddress) external;
-} 
+}

@@ -8,6 +8,7 @@ import "../interfaces/IFeeSettings.sol";
 import "../interfaces/IRegistry.sol";
 import "../interfaces/IUser.sol";
 import "../User.sol";
+
 contract UserFactory is IUserFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
     IFeeSettings public settings;
     IRegistry public registry;
@@ -17,28 +18,23 @@ contract UserFactory is IUserFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(
-        address _settings,
-        address _registry
-    ) public initializer {
+    function initialize(address _settings, address _registry) public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         settings = IFeeSettings(_settings);
         registry = IRegistry(_registry);
     }
 
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 
     function createUser() public payable {
         // Collect fees
-        settings.collectFees{value: msg.value}(msg.sender, msg.value);
+        settings.collectFees{ value: msg.value }(msg.sender, msg.value);
         IUser user = new User();
         address userAddress = address(user);
         registry.setUserContract(msg.sender, userAddress);
         emit UserCreated(msg.sender, userAddress);
     }
 
-    function attestationManager() external view override returns (address) {}
+    function attestationManager() external view override returns (address) { }
 }

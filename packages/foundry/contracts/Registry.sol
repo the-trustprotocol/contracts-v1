@@ -6,14 +6,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./interfaces/IRegistry.sol";
 
 contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
-  
     mapping(address => address) public addressToUserContracts;
-    
 
     address[] public trustedUpdaters;
-    
+
     mapping(address => bool) public isTrustedUpdater;
- 
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -24,7 +22,7 @@ contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
         __UUPSUpgradeable_init();
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 
     modifier onlyTrustedUpdaterOrOwner() {
         require(isTrustedUpdater[msg.sender] || msg.sender == owner(), "Not a trusted updater or owner");
@@ -34,27 +32,27 @@ contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
     function addTrustedUpdater(address updater) external onlyOwner {
         require(updater != address(0), "Invalid address");
         require(!isTrustedUpdater[updater], "Already trusted updater");
-        
+
         trustedUpdaters.push(updater);
         isTrustedUpdater[updater] = true;
-        
+
         emit UpdaterAdded(updater);
     }
 
     function removeTrustedUpdater(address updater) external onlyOwner {
         require(isTrustedUpdater[updater], "Not a trusted updater");
-        
+
         isTrustedUpdater[updater] = false;
-        
+
         // Remove from array
-        for(uint i = 0; i < trustedUpdaters.length; i++) {
-            if(trustedUpdaters[i] == updater) {
+        for (uint256 i = 0; i < trustedUpdaters.length; i++) {
+            if (trustedUpdaters[i] == updater) {
                 trustedUpdaters[i] = trustedUpdaters[trustedUpdaters.length - 1];
                 trustedUpdaters.pop();
                 break;
             }
         }
-        
+
         emit UpdaterRemoved(updater);
     }
 

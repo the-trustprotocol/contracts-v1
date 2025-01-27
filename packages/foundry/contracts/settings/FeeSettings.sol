@@ -6,6 +6,7 @@ import "../interfaces/IFeeSettings.sol";
 
 contract FeeSettings is IFeeSettings {
     mapping(bytes4 => FeeConfig) public functionFees;
+
     function _registerFunctionFees(
         bytes4 functionSelector,
         uint256 flatFee,
@@ -15,7 +16,7 @@ contract FeeSettings is IFeeSettings {
     ) internal {
         require(percentageFee <= 10000, "Percentage fee cannot exceed 100%");
         require(treasury != address(0), "Invalid treasury address");
-        
+
         functionFees[functionSelector] = FeeConfig({
             flatFee: flatFee,
             percentageFee: percentageFee,
@@ -24,13 +25,7 @@ contract FeeSettings is IFeeSettings {
             isRegistered: true
         });
 
-        emit FeeConfigUpdated(
-            functionSelector,
-            flatFee,
-            percentageFee,
-            tokenAddress,
-            treasury
-        );
+        emit FeeConfigUpdated(functionSelector, flatFee, percentageFee, tokenAddress, treasury);
     }
 
     function _deregisterFunctionFees(bytes4 functionSelector) internal {
@@ -40,7 +35,7 @@ contract FeeSettings is IFeeSettings {
     function collectFees(address from, uint256 amount) external payable virtual returns (uint256) {
         bytes4 functionSelector = msg.sig;
         FeeConfig memory feeConfig = functionFees[functionSelector];
-        
+
         if (!feeConfig.isRegistered) {
             require(msg.value == 0, "Fees not configured for this function");
             return 0;
@@ -61,11 +56,7 @@ contract FeeSettings is IFeeSettings {
         } else {
             // ERC20 token
             require(msg.value == 0, "Do not send ETH with ERC20 fee");
-            IERC20(feeConfig.tokenAddress).transferFrom(
-                from,
-                feeConfig.treasury,
-                totalFee
-            );
+            IERC20(feeConfig.tokenAddress).transferFrom(from, feeConfig.treasury, totalFee);
         }
 
         return totalFee;

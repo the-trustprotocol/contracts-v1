@@ -16,7 +16,7 @@ contract UserFactorySettings is FeeSettings, Ownable2StepUpgradeable, UUPSUpgrad
         __UUPSUpgradeable_init();
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 
     function registerFunctionFees(
         bytes4 functionSelector,
@@ -25,13 +25,7 @@ contract UserFactorySettings is FeeSettings, Ownable2StepUpgradeable, UUPSUpgrad
         address tokenAddress,
         address treasury
     ) external onlyOwner {
-        _registerFunctionFees(
-            functionSelector,
-            flatFee,
-            percentageFee,
-            tokenAddress,
-            treasury
-        );
+        _registerFunctionFees(functionSelector, flatFee, percentageFee, tokenAddress, treasury);
     }
 
     function deregisterFunctionFees(bytes4 functionSelector) external onlyOwner {

@@ -2,15 +2,12 @@
 
 pragma solidity 0.8.28;
 
-    
 interface ISettings {
-
-     /*
+    /*
     --------------------------
     ----------ERRORS----------
     --------------------------
     */
-
 
     /*
     --------------------------
@@ -24,6 +21,6 @@ interface ISettings {
     ----------FUNCTIONS----------
     --------------------------
     */
-    function getProtocolFee() external view returns(uint256);
-    function setProtocolFee(uint256 _fee) external returns(bool);
+    function getProtocolFee() external view returns (uint256);
+    function setProtocolFee(uint256 _fee) external returns (bool);
 }

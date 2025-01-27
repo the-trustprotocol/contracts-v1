@@ -3,7 +3,6 @@
 pragma solidity 0.8.28;
 
 interface IBond {
-
     /*
     --------------------------
     ----------STRUCTS----------
@@ -31,16 +30,38 @@ interface IBond {
     error BondIsFreezed();
     error UserIsNotAOwnerForThisBond();
 
-
     /*
     --------------------------
     ----------EVENTS----------
     --------------------------
     */
-    event BondCreated(address indexed bondAddress, address user1, address user2, uint256 totalBondAmount, uint256 createdAt);
-    event BondWithdrawn(address indexed bondAddress, address user1, address user2, address indexed withdrawnBy, uint256 totalBondAmount, uint256 createdAt);
-    event BondBroken(address indexed bondAddress, address user1, address user2, address indexed brokenBy, uint256 totalBondAmount, uint256 createdAt);
-    event BondFreezed(address indexed bondAddress, address user1, address user2, address indexed freezedbY, uint256 totalBondAmount, uint256 createdAt);
+    event BondCreated(
+        address indexed bondAddress, address user1, address user2, uint256 totalBondAmount, uint256 createdAt
+    );
+    event BondWithdrawn(
+        address indexed bondAddress,
+        address user1,
+        address user2,
+        address indexed withdrawnBy,
+        uint256 totalBondAmount,
+        uint256 createdAt
+    );
+    event BondBroken(
+        address indexed bondAddress,
+        address user1,
+        address user2,
+        address indexed brokenBy,
+        uint256 totalBondAmount,
+        uint256 createdAt
+    );
+    event BondFreezed(
+        address indexed bondAddress,
+        address user1,
+        address user2,
+        address indexed freezedbY,
+        uint256 totalBondAmount,
+        uint256 createdAt
+    );
 
     /*
     --------------------------

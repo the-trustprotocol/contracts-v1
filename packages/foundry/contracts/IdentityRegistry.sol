@@ -21,16 +21,16 @@ contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
         __UUPSUpgradeable_init();
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 
     function setResolver(string calldata identityTag, address resolverContract) external onlyOwner {
         require(resolverContract != address(0), "Invalid resolver address");
         require(bytes(identityTag).length > 0, "Identity tag cannot be empty");
-        
+
         // Update mapping
         identityTagToResolver[identityTag] = resolverContract;
-        
-        if(!resolverExists[resolverContract]) {
+
+        if (!resolverExists[resolverContract]) {
             resolverExists[resolverContract] = true;
             emit ResolverAdded(identityTag, resolverContract);
         }

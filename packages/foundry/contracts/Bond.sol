@@ -2,34 +2,29 @@
 
 pragma solidity 0.8.28;
 
-import {IBond} from "./interfaces/IBond.sol";
+import { IBond } from "./interfaces/IBond.sol";
 import "./YieldProviderService.sol";
-import {IYieldProviderService} from "./interfaces/IYieldProviderService.sol";
-import {IPool} from "@aave/interfaces/IPool.sol";
-import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { ReentrancyGuardUpgradeable } from
-  "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
+import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
+import { IPool } from "@aave/interfaces/IPool.sol";
+import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
+contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     BondDetails public bond;
     mapping(address => uint256) individualAmount;
     mapping(address => bool) public isUser;
     IPool public aavePool;
     IYieldProviderService public YPS;
 
-
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(
-        address _asset,
-        address _user1,
-        address _user2,
-        uint256 _user1Amount,
-        address _aavePoolAddress
-    ) external initializer {
+    function initialize(address _asset, address _user1, address _user2, uint256 _user1Amount, address _aavePoolAddress)
+        external
+        initializer
+    {
         __Ownable_init(msg.sender); //need to think who should be the owner, we might not need this
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
@@ -59,24 +54,23 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
     }
 
-
     /*
     ----------------------------------
     ------EXTERNAL OPEN FUNCTIONS-----
     ----------------------------------
     */
 
-    function stake(uint256 _amount) external nonReentrant override returns(BondDetails memory) {
+    function stake(uint256 _amount) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
 
         individualAmount[msg.sender] = _amount;
         bond.totalBondAmount += _amount;
-        YPS.stake(bond.asset, address(this),  _amount);
+        YPS.stake(bond.asset, address(this), _amount);
         return bond;
     }
 
-    function withdrawBond() external nonReentrant override returns(BondDetails memory) {
+    function withdrawBond() external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
         _freezed();
@@ -89,7 +83,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         return bond;
     }
 
-    function breakBond() external nonReentrant override returns(BondDetails memory) {
+    function breakBond() external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
         _freezed();
@@ -104,9 +98,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         _onlyUser();
     }
 
-    function freezeBond(uint256 _id) external override {}
-
-
+    function freezeBond(uint256 _id) external override { }
 
     /*
     ----------------------------------
@@ -115,19 +107,16 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     */
 
     function _onlyActive() private view {
-        if(!bond.isActive) revert BondNotActive();
+        if (!bond.isActive) revert BondNotActive();
     }
 
     function _freezed() private view {
-        if(bond.isFreezed) revert BondIsFreezed();
+        if (bond.isFreezed) revert BondIsFreezed();
     }
 
     function _onlyUser() private view {
-        if(!isUser[msg.sender]) revert UserIsNotAOwnerForThisBond();
+        if (!isUser[msg.sender]) revert UserIsNotAOwnerForThisBond();
     }
 
-    function _authorizeUpgrade(
-    address newImplementation
-  ) internal override onlyOwner { }
-
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

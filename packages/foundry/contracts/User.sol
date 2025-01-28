@@ -3,6 +3,7 @@
 pragma solidity 0.8.28;
 
 import "./interfaces/IBond.sol";
+import "./interfaces/IBondFactory.sol";
 import "./interfaces/IUser.sol";
 import "./Bond.sol";
 import "./interfaces/IIdentityRegistry.sol";
@@ -10,25 +11,21 @@ import "./interfaces/IIdentityResolver.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
-interface IBondFactory {
-    function createBond(address _asset, address _user1, address _user2, uint256 _totalAmount, address _aavePoolAddress)
-        external
-        returns (address);
-}
-
 contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
-    IIdentityRegistry private identityRegistry;
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
-    IBondFactory private bondFactory;
+
     UserDetails public user;
+
+    IBondFactory private bondFactory;
+    IIdentityRegistry private identityRegistry;
 
     constructor() {
         _disableInitializers();
     }
 
     function initialize(address _identityRegistry, address _bondFactoryAddress) external initializer {
-        require(_identityRegistry != address(0), "Invalid registry address");
+        if (_identityRegistry == address(0)) revert InvalidRegistryAddress();
 
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
@@ -56,9 +53,21 @@ contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
     ----------------------------------
     */
 
-    function createBond(IBond.BondDetails memory _bond, address _aavePoolAddress) external override returns (bool) {
-        address newBond =
-            bondFactory.createBond(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, _aavePoolAddress);
+    function createBond(
+        IBond.BondDetails memory _bond,
+        address _aavePoolAddress,
+        address _uiPoolDataAddress,
+        address _ypsFactoryAddress
+    ) external override returns (bool) {
+        address newBond = bondFactory.createBond(
+            _bond.asset,
+            _bond.user1,
+            _bond.user2,
+            _bond.totalBondAmount,
+            _aavePoolAddress,
+            _uiPoolDataAddress,
+            _ypsFactoryAddress
+        );
 
         bondDetails[newBond] = _bond;
         emit BondDeployed(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, block.timestamp);

@@ -27,6 +27,7 @@ interface IUser {
     ----------ERRORS----------
     --------------------------
     */
+    error InvalidRegistryAddress();
 
     /*
     --------------------------

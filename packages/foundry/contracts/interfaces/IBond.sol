@@ -29,6 +29,9 @@ interface IBond {
     error BondNotActive();
     error BondIsFreezed();
     error UserIsNotAOwnerForThisBond();
+    error NoCollateralRequested();
+    error CantAcceptOwnCollateral();
+    error NothingToClaim();
 
     /*
     --------------------------
@@ -68,13 +71,11 @@ interface IBond {
     ----------FUNCTIONS----------
     --------------------------
     */
-    // function getBondDetails(uint256 _id) external view returns(BondDetails memory);
     function stake(uint256 _amount) external returns (BondDetails memory);
     function withdrawBond() external returns (BondDetails memory);
     function breakBond() external returns (BondDetails memory);
     function requestForCollateral() external;
     function acceptForCollateral() external;
     function unfreezeBond() external;
-    // function freezeBond() external;
     function collectYield() external;
 }

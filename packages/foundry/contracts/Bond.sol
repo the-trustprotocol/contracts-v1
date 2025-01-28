@@ -14,17 +14,22 @@ import { IPoolAddressesProvider } from "@aave/interfaces/IPoolAddressesProvider.
 import { IUiPoolDataProviderV3 } from "@aave-origin/periphery/contracts/misc/interfaces/IUiPoolDataProviderV3.sol";
 
 contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
-    BondDetails public bond;
+    address public collateralRequestedBy;
+    address public aavePoolAddress;
+
+    uint256 public constant MAX_BPS = 10000;
+
     mapping(address => uint256) public individualAmount;
     mapping(address => uint256) public claimableYield;
     mapping(address => uint256) public individualPercentage;
     //we can replace the above 3 mappings with a struct and mapping of that struct
     mapping(address => bool) public isUser;
+
     IPool public aavePool;
     IYieldProviderService public YPS;
     IUiPoolDataProviderV3 public UiPoolDataProvider;
-    address public aavePoolAddress;
-    uint256 public constant MAX_BPS = 10000;
+
+    BondDetails public bond;
 
     constructor() {
         _disableInitializers();
@@ -120,13 +125,38 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         YPS.withdrawBond(bond.asset, msg.sender, userClaimableYield);
     }
 
-    function freezeBond(uint256 _id) external override { }
+    function requestForCollateral() external override {
+        _onlyActive();
+        _onlyUser();
+        _freezed();
+        collateralRequestedBy = msg.sender;
+    }
+
+    function acceptForCollateral() external override {
+        _onlyActive();
+        _onlyUser();
+        _freezed();
+        if (collateralRequestedBy == address(0)) revert("no collateral requested");
+        if (collateralRequestedBy == msg.sender) revert("cannot accept your own request");
+        freezeBond();
+    }
+
+    function unfreezeBond() external override {
+        _onlyActive();
+        //need to think who should be able to call this function, based on to whom we give access to the bond when its freezed
+        bond.isFreezed = true;
+    }
 
     /*
     ----------------------------------
     ---------PRIVATE FUNCTIONS--------
     ----------------------------------
     */
+
+    function freezeBond() private {
+        bond.isFreezed = true;
+        // to whom we can give the access/authority of this bond ??????????
+    }
 
     function _onlyActive() private view {
         if (!bond.isActive) revert BondNotActive();
@@ -140,7 +170,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         if (!isUser[msg.sender]) revert UserIsNotAOwnerForThisBond();
     }
 
-    function _calcYield() private returns (address) {
+    function _calcYield() private {
         (IUiPoolDataProviderV3.AggregatedReserveData[] memory aggregatedReserveData,) =
             UiPoolDataProvider.getReservesData(IPoolAddressesProvider(aavePoolAddress));
         address aToken = aggregatedReserveData[0].aTokenAddress;

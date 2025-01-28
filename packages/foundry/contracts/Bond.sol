@@ -11,24 +11,33 @@ import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/acc
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import { IPoolAddressesProvider } from "@aave/interfaces/IPoolAddressesProvider.sol";
-// import {IUiPoolDataProviderV3} from
+import { IUiPoolDataProviderV3 } from "@aave-origin/periphery/contracts/misc/interfaces/IUiPoolDataProviderV3.sol";
 
 contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     BondDetails public bond;
-    mapping(address => uint256) individualAmount;
+    mapping(address => uint256) public individualAmount;
+    mapping(address => uint256) public claimableYield;
+    mapping(address => uint256) public individualPercentage;
+    //we can replace the above 3 mappings with a struct and mapping of that struct
     mapping(address => bool) public isUser;
     IPool public aavePool;
     IYieldProviderService public YPS;
+    IUiPoolDataProviderV3 public UiPoolDataProvider;
     address public aavePoolAddress;
+    uint256 public constant MAX_BPS = 10000;
 
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address _asset, address _user1, address _user2, uint256 _user1Amount, address _aavePoolAddress)
-        external
-        initializer
-    {
+    function initialize(
+        address _asset,
+        address _user1,
+        address _user2,
+        uint256 _user1Amount,
+        address _aavePoolAddress,
+        address _uiPoolDataAddress
+    ) external initializer {
         __Ownable_init(msg.sender); //need to think who should be the owner, we might not need this
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
@@ -49,10 +58,12 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         });
 
         individualAmount[_user1] = _user1Amount;
+        individualPercentage[_user1] = 100;
         isUser[_user1] = true;
         isUser[_user2] = true;
         address yieldProvider = address(new YieldProviderService(_aavePoolAddress));
         YPS = IYieldProviderService(yieldProvider);
+        UiPoolDataProvider = IUiPoolDataProviderV3(_uiPoolDataAddress);
         YPS.stake(_asset, _user1, _user1Amount);
 
         emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
@@ -67,9 +78,10 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     function stake(uint256 _amount) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
-
         individualAmount[msg.sender] = _amount;
         bond.totalBondAmount += _amount;
+        individualPercentage[bond.user1] = (individualAmount[bond.user1] * MAX_BPS) / bond.totalBondAmount;
+        individualPercentage[bond.user2] = (individualAmount[bond.user2] * MAX_BPS) / bond.totalBondAmount;
         YPS.stake(bond.asset, address(this), _amount);
         return bond;
     }
@@ -100,8 +112,12 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
 
     function collectYield() external override {
         _onlyUser();
-        uint256 claimableYield = 100 - IERC20(bond.asset).balanceOf(address(this)); //100 will replaced by the balance of aTokens.
-        YPS.withdrawBond(bond.asset, msg.sender, claimableYield);
+        _freezed();
+        _calcYield();
+        if (claimableYield[msg.sender] == 0) revert("nothing to claim");
+        uint256 userClaimableYield = claimableYield[msg.sender];
+        claimableYield[msg.sender] = 0;
+        YPS.withdrawBond(bond.asset, msg.sender, userClaimableYield);
     }
 
     function freezeBond(uint256 _id) external override { }
@@ -124,7 +140,15 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         if (!isUser[msg.sender]) revert UserIsNotAOwnerForThisBond();
     }
 
-    function _calcYield(address _user) private returns (uint256) { }
+    function _calcYield() private returns (address) {
+        (IUiPoolDataProviderV3.AggregatedReserveData[] memory aggregatedReserveData,) =
+            UiPoolDataProvider.getReservesData(IPoolAddressesProvider(aavePoolAddress));
+        address aToken = aggregatedReserveData[0].aTokenAddress;
+        uint256 aTokenBalance = IERC20(aToken).balanceOf(address(this));
+        uint256 yield = aTokenBalance - bond.totalBondAmount;
+        claimableYield[bond.user1] = (individualPercentage[bond.user1] * yield) / MAX_BPS;
+        claimableYield[bond.user2] = (individualPercentage[bond.user2] * yield) / MAX_BPS;
+    }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

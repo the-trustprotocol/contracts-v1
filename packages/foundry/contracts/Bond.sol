@@ -4,11 +4,14 @@ pragma solidity 0.8.28;
 
 import { IBond } from "./interfaces/IBond.sol";
 import "./YieldProviderService.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
 import { IPool } from "@aave/interfaces/IPool.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import { IPoolAddressesProvider } from "@aave/interfaces/IPoolAddressesProvider.sol";
+// import {IUiPoolDataProviderV3} from
 
 contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     BondDetails public bond;
@@ -16,6 +19,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     mapping(address => bool) public isUser;
     IPool public aavePool;
     IYieldProviderService public YPS;
+    address public aavePoolAddress;
 
     constructor() {
         _disableInitializers();
@@ -94,8 +98,10 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         return bond;
     }
 
-    function collectYield(uint256 _id) external override {
+    function collectYield() external override {
         _onlyUser();
+        uint256 claimableYield = 100 - IERC20(bond.asset).balanceOf(address(this)); //100 will replaced by the balance of aTokens.
+        YPS.withdrawBond(bond.asset, msg.sender, claimableYield);
     }
 
     function freezeBond(uint256 _id) external override { }
@@ -117,6 +123,8 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     function _onlyUser() private view {
         if (!isUser[msg.sender]) revert UserIsNotAOwnerForThisBond();
     }
+
+    function _calcYield(address _user) private returns (uint256) { }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

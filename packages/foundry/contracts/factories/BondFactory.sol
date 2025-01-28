@@ -22,14 +22,14 @@ contract BondFactory is Ownable2StepUpgradeable, UUPSUpgradeable {
         implementation = _bondImplementation;
     }
 
-    function createBond(address _asset, address _user1, address _user2, uint256 _user1Amount, address _aavePoolAddress)
+    function createBond(address _asset, address _user1, address _user2, uint256 _totalAmount, address _aavePoolAddress)
         external
         onlyOwner
         returns (address)
     {
         address newBond = implementation.clone();
 
-        Bond(newBond).initialize(_asset, _user1, _user2, _user1Amount, _aavePoolAddress);
+        Bond(newBond).initialize(_asset, _user1, _user2, _totalAmount, _aavePoolAddress);
         return newBond;
     }
 

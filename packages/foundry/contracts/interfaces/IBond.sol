@@ -73,5 +73,5 @@ interface IBond {
     function withdrawBond() external returns (BondDetails memory);
     function breakBond() external returns (BondDetails memory);
     function freezeBond(uint256 _id) external;
-    function collectYield(uint256 _id) external;
+    function collectYield() external;
 }

@@ -8,22 +8,16 @@ import "./Bond.sol";
 import "./interfaces/IIdentityRegistry.sol";
 import "./interfaces/IIdentityResolver.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
 interface IBondFactory {
-    function createBond(
-        address _asset,
-        address _user1,
-        address _user2,
-        uint256 _user1Amount,
-        uint256 _user2Amount,
-        address _aavePoolAddress,
-        address _tokenInAddress
-    ) external returns (address);
+    function createBond(address _asset, address _user1, address _user2, uint256 _totalAmount, address _aavePoolAddress)
+        external
+        returns (address);
 }
 
-contract User is IUser {
-    IIdentityRegistry private immutable identityRegistry;
+contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
+    IIdentityRegistry private identityRegistry;
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
     IBondFactory private bondFactory;
@@ -36,7 +30,7 @@ contract User is IUser {
     function initialize(address _identityRegistry, address _bondFactoryAddress) external initializer {
         require(_identityRegistry != address(0), "Invalid registry address");
 
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
 
         identityRegistry = IIdentityRegistry(_identityRegistry);
@@ -62,20 +56,12 @@ contract User is IUser {
     ----------------------------------
     */
 
-    function createBond(IBond.BondDetails memory _bond) external override returns (bool) {
+    function createBond(IBond.BondDetails memory _bond, address _aavePoolAddress) external override returns (bool) {
         address newBond =
-            bondFactory.createBond(_bond.asset, _bond.user1, _bond.user2, _bond.user1Amount, _bond.aavePoolAddress);
+            bondFactory.createBond(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, _aavePoolAddress);
 
         bondDetails[newBond] = _bond;
-        emit BondDeployed(
-            _bond.id,
-            _bond.user1,
-            _bond.user2,
-            _bond.user1Amount,
-            _bond.user2Amount,
-            _bond.totalBondAmount,
-            block.timestamp
-        );
+        emit BondDeployed(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, block.timestamp);
         return true;
     }
 
@@ -91,4 +77,6 @@ contract User is IUser {
         verifiedIdentities[identityTag] = verified;
         return verified;
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

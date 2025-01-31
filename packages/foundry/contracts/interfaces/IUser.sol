@@ -27,6 +27,7 @@ interface IUser {
     ----------ERRORS----------
     --------------------------
     */
+    error InvalidRegistryAddress();
 
     /*
     --------------------------
@@ -35,15 +36,7 @@ interface IUser {
     */
 
     event UserCreated(address indexed user, uint256 timestamp);
-    event BondDeployed(
-        uint256 indexed id,
-        address user1,
-        address user2,
-        uint256 user1Amount,
-        uint256 user2Amount,
-        uint256 totalAmount,
-        uint256 timestamp
-    );
+    event BondDeployed(address indexed asset, address user1, address user2, uint256 totalAmount, uint256 timestamp);
 
     /*
     --------------------------
@@ -51,5 +44,5 @@ interface IUser {
     --------------------------
     */
     function getBondDetails(address _bondAddress) external view returns (IBond.BondDetails memory);
-    function createBond(IBond.BondDetails memory _bond) external returns (bool);
+    function createBond(IBond.BondDetails memory _bond, address _aavePoolAddress) external returns (bool);
 }

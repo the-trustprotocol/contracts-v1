@@ -3,35 +3,33 @@
 pragma solidity 0.8.28;
 
 import "./interfaces/IBond.sol";
+import "./interfaces/IBondFactory.sol";
 import "./interfaces/IUser.sol";
 import "./Bond.sol";
 import "./interfaces/IIdentityRegistry.sol";
 import "./interfaces/IIdentityResolver.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
-interface IBondFactory {
-    function createBond(
-        address _asset,
-        address _user1,
-        address _user2,
-        uint256 _user1Amount,
-        uint256 _user2Amount,
-        address _aavePoolAddress,
-        address _tokenInAddress
-    ) external returns (address);
-}
-
-contract User is IUser {
-    IIdentityRegistry  public identityRegistry;
+contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
-    IBondFactory private bondFactory;
+
     UserDetails public user;
 
+    IBondFactory private bondFactory;
+    IIdentityRegistry private identityRegistry;
 
-    function initialize(address _identityRegistry, address _bondFactoryAddress) external  {
-        require(_identityRegistry != address(0), "Invalid registry address");
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _identityRegistry, address _bondFactoryAddress) external initializer {
+        if (_identityRegistry == address(0)) revert InvalidRegistryAddress();
+
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+
         identityRegistry = IIdentityRegistry(_identityRegistry);
         bondFactory = IBondFactory(_bondFactoryAddress);
 
@@ -55,20 +53,24 @@ contract User is IUser {
     ----------------------------------
     */
 
-    function createBond(IBond.BondDetails memory _bond) external override returns (bool) {
-        // address newBond =
-        //     bondFactory.createBond(_bond.asset, _bond.user1, _bond.user2, _bond.user1Amount, _bond.aavePoolAddress);
+    function createBond(
+        IBond.BondDetails memory _bond,
+        address _aavePoolAddress,
+        address _uiPoolDataAddress,
+        address _ypsFactoryAddress
+    ) external override returns (bool) {
+        address newBond = bondFactory.createBond(
+            _bond.asset,
+            _bond.user1,
+            _bond.user2,
+            _bond.totalBondAmount,
+            _aavePoolAddress,
+            _uiPoolDataAddress,
+            _ypsFactoryAddress
+        );
 
-        // bondDetails[newBond] = _bond;
-        // emit BondDeployed(
-        //     _bond.id,
-        //     _bond.user1,
-        //     _bond.user2,
-        //     _bond.user1Amount,
-        //     _bond.user2Amount,
-        //     _bond.totalBondAmount,
-        //     block.timestamp
-        // );
+        bondDetails[newBond] = _bond;
+        emit BondDeployed(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, block.timestamp);
         return true;
     }
 
@@ -84,4 +86,6 @@ contract User is IUser {
         verifiedIdentities[identityTag] = verified;
         return verified;
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

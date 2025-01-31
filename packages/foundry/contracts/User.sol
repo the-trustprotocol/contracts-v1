@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.28;
 
-import {IBond} from "./interfaces/IBond.sol";
-import {IBondFactory} from "./interfaces/IBondFactory.sol";
-import {IUser} from "./interfaces/IUser.sol";
-import {Bond} from "./Bond.sol";
-import {IIdentityRegistry} from "./interfaces/IIdentityRegistry.sol";
-import {IIdentityResolver} from "./interfaces/IIdentityResolver.sol";
+import { IBond } from "./interfaces/IBond.sol";
+import { IBondFactory } from "./interfaces/IBondFactory.sol";
+import { IUser } from "./interfaces/IUser.sol";
+import { Bond } from "./Bond.sol";
+import { IIdentityRegistry } from "./interfaces/IIdentityRegistry.sol";
+import { IIdentityResolver } from "./interfaces/IIdentityResolver.sol";
 
-import {IFeeSettings} from "./interfaces/IFeeSettings.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IFeeSettings } from "./interfaces/IFeeSettings.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 contract User is IUser {
     mapping(address => IBond.BondDetails) private bondDetails;
@@ -47,21 +47,17 @@ contract User is IUser {
     ----------------------------------
     */
 
-  function createBond(
-    IBond.BondDetails memory _bond,
-    address _bondFactoryAddress,
-    address _yieldProviderServiceAddress
-  ) external override payable returns (bool) {
-    feeSettings.collectFees{value: msg.value}(msg.sender, msg.value, msg.sig);
+    function createBond(
+        IBond.BondDetails memory _bond,
+        address _bondFactoryAddress,
+        address _yieldProviderServiceAddress
+    ) external payable override returns (bool) {
+        feeSettings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);
 
-    IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
-    address newBond = bondFactory.createBond(
-      _bond.asset,
-      _bond.user1,
-      _bond.user2,
-      _bond.totalBondAmount,
-      _yieldProviderServiceAddress
-    );
+        IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
+        address newBond = bondFactory.createBond(
+            _bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, _yieldProviderServiceAddress
+        );
 
         bondDetails[newBond] = _bond;
         emit BondDeployed(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, block.timestamp);

@@ -3,7 +3,7 @@
 pragma solidity 0.8.28;
 
 import { IBond } from "./interfaces/IBond.sol";
-import {YieldProviderService} from "./YieldProviderService.sol";
+import { YieldProviderService } from "./YieldProviderService.sol";
 import { IYieldProviderServiceFactory } from "./interfaces/IYieldProviderServiceFactory.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
@@ -16,7 +16,7 @@ import { IUiPoolDataProviderV3 } from "@aave-origin/periphery/contracts/misc/int
 
 contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     address public collateralRequestedBy;
-    
+
     uint256 public constant MAX_BPS = 10000;
 
     mapping(address => uint256) public individualAmount;
@@ -169,7 +169,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     function _calcYield() private {
         address aToken = yps.getAToken();
         uint256 aTokenBalance = IERC20(aToken).balanceOf(address(this));
-        uint256 yield = aTokenBalance - bond.totalBondAmount; // only works with stable coins, if the all aTokens are ERC20 
+        uint256 yield = aTokenBalance - bond.totalBondAmount; // only works with stable coins, if the all aTokens are ERC20
         claimableYield[bond.user1] = (individualPercentage[bond.user1] * yield) / MAX_BPS;
         claimableYield[bond.user2] = (individualPercentage[bond.user2] * yield) / MAX_BPS;
     }

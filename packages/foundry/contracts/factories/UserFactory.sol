@@ -25,7 +25,6 @@ contract UserFactory is IUserFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         settings = IFeeSettings(_settings);
         registry = IRegistry(_registry);
         userSettings = IFeeSettings(_userSettings);
-
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
@@ -34,10 +33,7 @@ contract UserFactory is IUserFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         // Collect fees
         settings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);
 
-        IUser user = new User(
-            _identityRegistry,
-            address(userSettings)
-        );
+        IUser user = new User(_identityRegistry, address(userSettings));
         address userAddress = address(user);
         registry.setUserContract(msg.sender, userAddress);
         emit UserCreated(msg.sender, userAddress);

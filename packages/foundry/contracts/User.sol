@@ -10,7 +10,7 @@ import "./interfaces/IIdentityRegistry.sol";
 import "./interfaces/IIdentityResolver.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract User is IUser {   
+contract User is IUser {
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
 
@@ -35,10 +35,7 @@ contract User is IUser {
             createdAt: block.timestamp
         });
         emit UserCreated(msg.sender, block.timestamp);
-        
     }
-
-  
 
     /*
     ----------------------------------
@@ -79,6 +76,4 @@ contract User is IUser {
         verifiedIdentities[identityTag] = verified;
         return verified;
     }
-
-
 }

@@ -36,8 +36,6 @@ contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
         }
     }
 
-
-
     function getResolver(string calldata identityTag) external view returns (address) {
         return identityTagToResolver[identityTag];
     }

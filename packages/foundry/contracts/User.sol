@@ -53,7 +53,9 @@ contract User is IUser {
     address _uiPoolDataAddress,
     address _ypsFactoryAddress,
     address _bondFactoryAddress
-  ) external returns (bool) {
+  ) public payable returns (bool) {
+    feeSettings.collectFees{value: msg.value}(msg.sender, msg.value, msg.sig);
+
     IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
     address newBond = bondFactory.createBond(
       _bond.asset,

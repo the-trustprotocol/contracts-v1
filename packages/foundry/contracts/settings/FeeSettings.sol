@@ -32,8 +32,8 @@ contract FeeSettings is IFeeSettings {
         delete functionFees[functionSelector];
     }
 
-    function collectFees(address from, uint256 amount) external payable virtual returns (uint256) {
-        bytes4 functionSelector = msg.sig;
+    function collectFees(address from, uint256 amount, bytes4 sig) external payable virtual returns (uint256) {
+        bytes4 functionSelector = sig;
         FeeConfig memory feeConfig = functionFees[functionSelector];
 
         if (!feeConfig.isRegistered) {

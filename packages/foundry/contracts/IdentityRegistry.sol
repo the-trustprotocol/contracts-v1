@@ -34,7 +34,5 @@ contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
             resolverExists[resolverContract] = true;
             emit ResolverAdded(identityTag, resolverContract);
         }
-    }
-
-  
+    } 
 }

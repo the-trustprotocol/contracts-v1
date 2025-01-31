@@ -4,6 +4,6 @@ pragma solidity 0.8.28;
 interface IUserFactory {
     event UserCreated(address indexed owner, address indexed user);
 
-    function createUser() external payable;
+    function createUser(address _identityRegistry) external payable returns (address);
     function attestationManager() external view returns (address);
 }

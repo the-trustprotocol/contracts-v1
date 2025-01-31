@@ -35,6 +35,7 @@ contract YieldProviderService is
     function stake(address _assetAddress, address _user, uint256 _amount) external override nonReentrant {
         aavePool.supply(_assetAddress, _amount, _user, 0);
     }
+    
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

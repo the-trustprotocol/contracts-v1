@@ -47,23 +47,25 @@ contract User is IUser {
     ----------------------------------
     */
 
-    function createBond(
-        IBond.BondDetails memory _bond,
-        address _aavePoolAddress,
-        address _uiPoolDataAddress,
-        address _ypsFactoryAddress,
-        address _bondFactoryAddress
-    ) external returns (bool) {
-        IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
-        address newBond = bondFactory.createBond(
-            _bond.asset,
-            _bond.user1,
-            _bond.user2,
-            _bond.totalBondAmount,
-            _aavePoolAddress,
-            _uiPoolDataAddress,
-            _ypsFactoryAddress
-        );
+  function createBond(
+    IBond.BondDetails memory _bond,
+    address _aavePoolAddress,
+    address _uiPoolDataAddress,
+    address _ypsFactoryAddress,
+    address _bondFactoryAddress
+  ) public payable returns (bool) {
+    feeSettings.collectFees{value: msg.value}(msg.sender, msg.value, msg.sig);
+
+    IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
+    address newBond = bondFactory.createBond(
+      _bond.asset,
+      _bond.user1,
+      _bond.user2,
+      _bond.totalBondAmount,
+      _aavePoolAddress,
+      _uiPoolDataAddress,
+      _ypsFactoryAddress
+    );
 
         bondDetails[newBond] = _bond;
         emit BondDeployed(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, block.timestamp);

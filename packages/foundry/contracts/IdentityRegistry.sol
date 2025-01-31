@@ -36,7 +36,5 @@ contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
         }
     }
 
-
-
   
 }

@@ -23,22 +23,15 @@ interface IBondFactory {
 }
 
 contract User is IUser {
-    IIdentityRegistry private immutable identityRegistry;
+    IIdentityRegistry  public identityRegistry;
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
     IBondFactory private bondFactory;
     UserDetails public user;
 
-    constructor() {
-        _disableInitializers();
-    }
 
-    function initialize(address _identityRegistry, address _bondFactoryAddress) external initializer {
+    function initialize(address _identityRegistry, address _bondFactoryAddress) external  {
         require(_identityRegistry != address(0), "Invalid registry address");
-
-        __Ownable_init();
-        __UUPSUpgradeable_init();
-
         identityRegistry = IIdentityRegistry(_identityRegistry);
         bondFactory = IBondFactory(_bondFactoryAddress);
 
@@ -63,19 +56,19 @@ contract User is IUser {
     */
 
     function createBond(IBond.BondDetails memory _bond) external override returns (bool) {
-        address newBond =
-            bondFactory.createBond(_bond.asset, _bond.user1, _bond.user2, _bond.user1Amount, _bond.aavePoolAddress);
+        // address newBond =
+        //     bondFactory.createBond(_bond.asset, _bond.user1, _bond.user2, _bond.user1Amount, _bond.aavePoolAddress);
 
-        bondDetails[newBond] = _bond;
-        emit BondDeployed(
-            _bond.id,
-            _bond.user1,
-            _bond.user2,
-            _bond.user1Amount,
-            _bond.user2Amount,
-            _bond.totalBondAmount,
-            block.timestamp
-        );
+        // bondDetails[newBond] = _bond;
+        // emit BondDeployed(
+        //     _bond.id,
+        //     _bond.user1,
+        //     _bond.user2,
+        //     _bond.user1Amount,
+        //     _bond.user2Amount,
+        //     _bond.totalBondAmount,
+        //     block.timestamp
+        // );
         return true;
     }
 

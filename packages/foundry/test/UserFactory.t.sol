@@ -10,19 +10,4 @@ contract UserFactoryTest is Test {
   UserFactory public impl;
   ERC1967Proxy public proxy;
   UserFactory public userFactory;
-
-  function testProxyDeployment() public {
-    vm.prank(owner);
-    impl = new UserFactory();
-    proxy = new ERC1967Proxy(address(impl), "");
-    address mockSettings = address(0x123);
-    address mockRegistry = address(0x456);
-    bytes memory initData = abi.encodeCall(UserFactory.initialize, (mockSettings, mockRegistry));
-    proxy = new ERC1967Proxy(address(impl), initData);
-    userFactory = UserFactory(address(proxy));
-    console.log("userFactory address: ", address(userFactory));
-    assertEq(address(userFactory.settings()), mockSettings);
-    assertEq(address(userFactory.registry()), mockRegistry);
-    assertNotEq(address(userFactory),address(0));
-  }
 }

@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
     mapping(string => address) private identityTagToResolver;
-    // address[] private resolvers;
+
     mapping(address => bool) private resolverExists;
 
     event ResolverAdded(string identityTag, address resolverContract);
@@ -36,9 +36,7 @@ contract IdentityRegistry is OwnableUpgradeable, UUPSUpgradeable {
         }
     }
 
-    // function getAllResolvers() external view returns (address[] memory) {
-    //     return resolvers;
-    // }
+
 
     function getResolver(string calldata identityTag) external view returns (address) {
         return identityTagToResolver[identityTag];

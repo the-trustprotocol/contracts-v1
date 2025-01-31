@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IFeeSettings} from "../interfaces/IFeeSettings.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IFeeSettings } from "../interfaces/IFeeSettings.sol";
 
 contract FeeSettings is IFeeSettings {
     mapping(bytes4 => FeeConfig) public functionFees;
@@ -15,9 +15,9 @@ contract FeeSettings is IFeeSettings {
         address treasury
     ) internal {
         // require(percentageFee <= 10000, "Percentage fee cannot exceed 100%");
-        if(percentageFee > 10000) revert FeePercentageCantExceed100();
+        if (percentageFee > 10000) revert FeePercentageCantExceed100();
         // require(treasury != address(0), "Invalid treasury address");
-        if(treasury == address(0)) revert AddressCantBeZero();
+        if (treasury == address(0)) revert AddressCantBeZero();
 
         functionFees[functionSelector] = FeeConfig({
             flatFee: flatFee,

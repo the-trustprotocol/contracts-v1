@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "../contracts/Registry.sol";
+import "../contracts/RegistryV2.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 
@@ -18,7 +19,7 @@ contract RegistryTest is Test {
     impl = new Registry();
     proxy = new ERC1967Proxy(address(impl), "");
     registry = Registry(address(proxy));
-    registry.initialize();
+    registry.initialize("1.0");
     vm.stopPrank();
   }
 
@@ -46,15 +47,5 @@ contract RegistryTest is Test {
     vm.prank(owner);
     vm.expectRevert("Invalid user address");
     registry.setUserContract(address(0), address(0x456));
-  }
-
-  function test_upgradeContract() public {
-    vm.startPrank(owner);
-    address newImpl = address(new Registry());
-    assertEq(address(registry.owner()), owner);
-    registry.upgradeToAndCall(newImpl,abi.en);
-    vm.stopPrank();
-    
-    assertEq(ERC1967Utils.getImplementation(address(proxy)), newImpl);
   }
 }

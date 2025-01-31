@@ -8,6 +8,8 @@ import "./interfaces/IRegistry.sol";
 contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
     mapping(address => address) public addressToUserContracts;
 
+    string public VERSION;
+
     address[] public trustedUpdaters;
 
     mapping(address => bool) public isTrustedUpdater;
@@ -17,7 +19,8 @@ contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
         _disableInitializers();
     }
 
-    function initialize() public initializer {
+    function initialize(string memory version) public initializer {
+        VERSION = version;
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
     }

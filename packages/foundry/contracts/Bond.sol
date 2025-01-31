@@ -11,7 +11,7 @@ import { IPool } from "@aave/interfaces/IPool.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import { IPoolAddressesProvider } from "@aave/interfaces/IPoolAddressesProvider.sol";
+import { IPoolAddressesProvider } from "@aave-origin/core/contracts/interfaces/IPoolAddressesProvider.sol";
 import { IUiPoolDataProviderV3 } from "@aave-origin/periphery/contracts/misc/interfaces/IUiPoolDataProviderV3.sol";
 
 contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
@@ -176,8 +176,9 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     }
 
     function _calcYield() private {
+        IPoolAddressesProvider poolAddressProvider = IPoolAddressesProvider(aavePoolAddress);
         (IUiPoolDataProviderV3.AggregatedReserveData[] memory aggregatedReserveData,) =
-            UiPoolDataProvider.getReservesData(IPoolAddressesProvider(aavePoolAddress));
+            UiPoolDataProvider.getReservesData(poolAddressProvider);
         address aToken = aggregatedReserveData[0].aTokenAddress;
         uint256 aTokenBalance = IERC20(aToken).balanceOf(address(this));
         uint256 yield = aTokenBalance - bond.totalBondAmount;

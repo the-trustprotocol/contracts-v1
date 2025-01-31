@@ -8,21 +8,26 @@ import "./interfaces/IUser.sol";
 import "./Bond.sol";
 import "./interfaces/IIdentityRegistry.sol";
 import "./interfaces/IIdentityResolver.sol";
+
+import "./interfaces/IFeeSettings.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract User is IUser {   
+abstract contract User is IUser {   
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
 
     UserDetails public user;
+ 
 
-    IBondFactory private bondFactory;
     IIdentityRegistry private identityRegistry;
+    IFeeSettings private feeSettings;
 
-    constructor(address _identityRegistry, address _bondFactoryAddress) {
+    mapping (string=>string) slashingWords;
+
+
+    constructor(address _identityRegistry,address _userWalletSettings) {
         identityRegistry = IIdentityRegistry(_identityRegistry);
-        bondFactory = IBondFactory(_bondFactoryAddress);
-
+        feeSettings = IFeeSettings(_userWalletSettings);
         user = UserDetails({
             userAddress: msg.sender,
             totalBonds: 0,
@@ -34,6 +39,7 @@ contract User is IUser {
             totalBrokenAmount: 0,
             createdAt: block.timestamp
         });
+        
         emit UserCreated(msg.sender, block.timestamp);
         
     }
@@ -50,8 +56,10 @@ contract User is IUser {
         IBond.BondDetails memory _bond,
         address _aavePoolAddress,
         address _uiPoolDataAddress,
-        address _ypsFactoryAddress
+        address _ypsFactoryAddress,
+        address _bondFactoryAddress
     ) external returns (bool) {
+        IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
         address newBond = bondFactory.createBond(
             _bond.asset,
             _bond.user1,

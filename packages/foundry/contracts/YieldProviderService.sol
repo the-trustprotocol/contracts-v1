@@ -14,28 +14,37 @@ contract YieldProviderService is
     Ownable2StepUpgradeable,
     ReentrancyGuardUpgradeable
 {
-    IPool public aavePool;
+    IPool public pool;
+    address private aToken;
 
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address poolAddress) external initializer {
+    function initialize(address poolAddress, address aTokenAddress) external initializer {
         __Ownable_init(msg.sender); // msg.sender is the bond contract, so bond contract will be the owner
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
 
-        aavePool = IPool(poolAddress);
+        pool = IPool(poolAddress);
+        aToken = aTokenAddress;
     }
 
     function withdrawBond(address _assetAddress, address _user, uint256 _amount) external override nonReentrant {
-        aavePool.withdraw(_assetAddress, _amount, _user);
+        pool.withdraw(_assetAddress, _amount, _user);
     }
 
     function stake(address _assetAddress, address _user, uint256 _amount) external override nonReentrant {
-        aavePool.supply(_assetAddress, _amount, _user, 0);
+        pool.supply(_assetAddress, _amount, _user, 0);
     }
-    
+
+    function collectYield(address _assetAddress, uint256 _amount, address _user) external override nonReentrant {
+        pool.withdraw(_assetAddress, _amount, _user);
+    }
+
+    function getAToken() external view override returns (address) {
+        return aToken;
+    }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

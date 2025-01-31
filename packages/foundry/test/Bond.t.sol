@@ -72,7 +72,7 @@ contract BondTest is Test {
         token.approve(user2, 1_000_000 * 1e18);
         token.transfer(user1, 1_000_000 * 1e18);
         bond.initialize(
-            address(token), user1, user2, user1Initial, address(aavePool), address(pds), address(ypsFactory)
+            address(token), user1, user2, user1Initial, address(yps)
         );
         vm.stopPrank();
     }

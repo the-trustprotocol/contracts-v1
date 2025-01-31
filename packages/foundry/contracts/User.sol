@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.28;
 
-import "./interfaces/IBond.sol";
-import "./interfaces/IBondFactory.sol";
-import "./interfaces/IUser.sol";
-import "./Bond.sol";
-import "./interfaces/IIdentityRegistry.sol";
-import "./interfaces/IIdentityResolver.sol";
+import {IBond} from "./interfaces/IBond.sol";
+import {IBondFactory} from "./interfaces/IBondFactory.sol";
+import {IUser} from "./interfaces/IUser.sol";
+import {Bond} from "./Bond.sol";
+import {IIdentityRegistry} from "./interfaces/IIdentityRegistry.sol";
+import {IIdentityResolver} from "./interfaces/IIdentityResolver.sol";
 
-import "./interfaces/IFeeSettings.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {IFeeSettings} from "./interfaces/IFeeSettings.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 contract User is IUser {
     mapping(address => IBond.BondDetails) private bondDetails;
@@ -21,7 +21,7 @@ contract User is IUser {
     IIdentityRegistry private identityRegistry;
     IFeeSettings private feeSettings;
 
-    mapping(string => string) slashingWords;
+    mapping(string => string) public slashingWords;
 
     constructor(address _identityRegistry, address _userWalletSettings) {
         identityRegistry = IIdentityRegistry(_identityRegistry);
@@ -49,11 +49,9 @@ contract User is IUser {
 
   function createBond(
     IBond.BondDetails memory _bond,
-    address _aavePoolAddress,
-    address _uiPoolDataAddress,
-    address _ypsFactoryAddress,
-    address _bondFactoryAddress
-  ) public payable returns (bool) {
+    address _bondFactoryAddress,
+    address _yieldProviderServiceAddress
+  ) external override payable returns (bool) {
     feeSettings.collectFees{value: msg.value}(msg.sender, msg.value, msg.sig);
 
     IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
@@ -62,9 +60,7 @@ contract User is IUser {
       _bond.user1,
       _bond.user2,
       _bond.totalBondAmount,
-      _aavePoolAddress,
-      _uiPoolDataAddress,
-      _ypsFactoryAddress
+      _yieldProviderServiceAddress
     );
 
         bondDetails[newBond] = _bond;
@@ -84,10 +80,10 @@ contract User is IUser {
         return verified;
     }
 
-    function createBond(
-        IBond.BondDetails memory _bond,
-        address _aavePoolAddress,
-        address _uiPoolDataAddress,
-        address _ypsFactoryAddress
-    ) external override returns (bool) { }
+    // function createBond(
+    //     IBond.BondDetails memory _bond,
+    //     address _aavePoolAddress,
+    //     address _uiPoolDataAddress,
+    //     address _ypsFactoryAddress
+    // ) external override returns (bool) { }  // why created a new function here...........
 }

@@ -46,8 +46,7 @@ interface IUser {
     function getBondDetails(address _bondAddress) external view returns (IBond.BondDetails memory);
     function createBond(
         IBond.BondDetails memory _bond,
-        address _aavePoolAddress,
-        address _uiPoolDataAddress,
-        address _ypsFactoryAddress
-    ) external returns (bool);
+        address _bondFactoryAddress,
+        address _yieldProviderServiceAddress
+    ) external payable returns (bool);
 }

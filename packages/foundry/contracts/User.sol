@@ -5,12 +5,12 @@ pragma solidity 0.8.28;
 import { IBond } from "./interfaces/IBond.sol";
 import { IBondFactory } from "./interfaces/IBondFactory.sol";
 import { IUser } from "./interfaces/IUser.sol";
-import { Bond } from "./Bond.sol";
+// import { Bond } from "./Bond.sol";
 import { IIdentityRegistry } from "./interfaces/IIdentityRegistry.sol";
 import { IIdentityResolver } from "./interfaces/IIdentityResolver.sol";
 
 import { IFeeSettings } from "./interfaces/IFeeSettings.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+// import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 contract User is IUser {
     mapping(address => IBond.BondDetails) private bondDetails;
@@ -70,7 +70,7 @@ contract User is IUser {
 
     function verifyIdentity(string calldata identityTag, bytes calldata data) external returns (bool) {
         address resolver = identityRegistry.getResolver(identityTag);
-        require(resolver != address(0), "Resolver not found");
+        if (resolver == address(0)) revert ResolverNotFound();
         bool verified = IIdentityResolver(resolver).verify(data);
         verifiedIdentities[identityTag] = verified;
         return verified;

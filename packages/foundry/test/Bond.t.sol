@@ -6,13 +6,9 @@ import { Test } from "forge-std/Test.sol";
 import { Bond } from "../contracts/Bond.sol";
 import { YieldProviderService } from "../contracts/YieldProviderService.sol";
 import { BondFactory } from "../contracts/factories/BondFactory.sol";
-import { YieldProviderFactory } from "../contracts/factories/YieldProviderFactory.sol";
-
 import { MockPool } from "@aave/mocks/helpers/MockPool.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
-import { UiPoolDataProviderV3 } from "@aave-origin/periphery/contracts/misc/UiPoolDataProviderV3.sol";
-import { IEACAggregatorProxy } from "@aave-origin/periphery/contracts/misc/interfaces/IEACAggregatorProxy.sol";
 
 contract BondTest is Test {
     Bond public bond;
@@ -22,12 +18,6 @@ contract BondTest is Test {
     ERC1967Proxy public ypsFactoryProxy;
     YieldProviderService public yps;
     MockPool public aavePool;
-    UiPoolDataProviderV3 public pds;
-    YieldProviderFactory public ypsFactory;
-
-    //these 2 were used in parameters for uipooldataprovider till we find the mock ui pool data provider....
-    IEACAggregatorProxy public immutable networkBaseTokenPriceInUsdProxyAggregator;
-    IEACAggregatorProxy public immutable marketReferenceCurrencyPriceInUsdProxyAggregator;
 
     address public owner = makeAddr("owner address");
     address public user1 = makeAddr("user1 address");
@@ -57,16 +47,6 @@ contract BondTest is Test {
         yps = new YieldProviderService();
         ypsProxy = new ERC1967Proxy(address(yps), "");
         yps = YieldProviderService(address(ypsProxy));
-
-        ypsFactory = new YieldProviderFactory();
-        ypsFactoryProxy = new ERC1967Proxy(address(ypsFactory), "");
-        ypsFactory = YieldProviderFactory(address(ypsFactoryProxy));
-        ypsFactory.initialize(address(yps));
-
-        pds = new UiPoolDataProviderV3(
-            IEACAggregatorProxy(networkBaseTokenPriceInUsdProxyAggregator),
-            IEACAggregatorProxy(marketReferenceCurrencyPriceInUsdProxyAggregator)
-        );
 
         token.approve(user1, 1_000_000 * 1e18);
         token.approve(user2, 1_000_000 * 1e18);

@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.28;
 
-import "./IBond.sol";
+import { IBond } from "./IBond.sol";
 
 interface IUser {
     /*
@@ -28,6 +28,7 @@ interface IUser {
     --------------------------
     */
     error InvalidRegistryAddress();
+    error ResolverNotFound();
 
     /*
     --------------------------

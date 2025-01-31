@@ -3,16 +3,11 @@
 pragma solidity 0.8.28;
 
 import { IBond } from "./interfaces/IBond.sol";
-import { YieldProviderService } from "./YieldProviderService.sol";
-import { IYieldProviderServiceFactory } from "./interfaces/IYieldProviderServiceFactory.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
-import { IPool } from "@aave/interfaces/IPool.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import { IPoolAddressesProvider } from "@aave-origin/core/contracts/interfaces/IPoolAddressesProvider.sol";
-import { IUiPoolDataProviderV3 } from "@aave-origin/periphery/contracts/misc/interfaces/IUiPoolDataProviderV3.sol";
 
 contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     address public collateralRequestedBy;

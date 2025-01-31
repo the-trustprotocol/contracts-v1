@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "../interfaces/IUserFactory.sol";
-import "../interfaces/IFeeSettings.sol";
-import "../interfaces/IRegistry.sol";
-import "../interfaces/IUser.sol";
-import "../User.sol";
+import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IUserFactory } from "../interfaces/IUserFactory.sol";
+import { IFeeSettings } from "../interfaces/IFeeSettings.sol";
+import { IRegistry } from "../interfaces/IRegistry.sol";
+import { IUser } from "../interfaces/IUser.sol";
+import { User } from "../User.sol";
 
 contract UserFactory is IUserFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
     IFeeSettings public settings;

@@ -9,9 +9,8 @@ import "./Bond.sol";
 import "./interfaces/IIdentityRegistry.sol";
 import "./interfaces/IIdentityResolver.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
-contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
+contract User is IUser {   
     mapping(address => IBond.BondDetails) private bondDetails;
     mapping(string => bool) private verifiedIdentities;
 
@@ -20,16 +19,7 @@ contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
     IBondFactory private bondFactory;
     IIdentityRegistry private identityRegistry;
 
-    constructor() {
-        _disableInitializers();
-    }
-
-    function initialize(address _identityRegistry, address _bondFactoryAddress) external initializer {
-        if (_identityRegistry == address(0)) revert InvalidRegistryAddress();
-
-        __Ownable_init(msg.sender);
-        __UUPSUpgradeable_init();
-
+    constructor(address _identityRegistry, address _bondFactoryAddress) {
         identityRegistry = IIdentityRegistry(_identityRegistry);
         bondFactory = IBondFactory(_bondFactoryAddress);
 
@@ -45,7 +35,10 @@ contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
             createdAt: block.timestamp
         });
         emit UserCreated(msg.sender, block.timestamp);
+        
     }
+
+  
 
     /*
     ----------------------------------
@@ -58,7 +51,7 @@ contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
         address _aavePoolAddress,
         address _uiPoolDataAddress,
         address _ypsFactoryAddress
-    ) external override returns (bool) {
+    ) external returns (bool) {
         address newBond = bondFactory.createBond(
             _bond.asset,
             _bond.user1,
@@ -87,5 +80,5 @@ contract User is IUser, Ownable2StepUpgradeable, UUPSUpgradeable {
         return verified;
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
+
 }

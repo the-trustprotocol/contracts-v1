@@ -7,6 +7,9 @@ import { IFeeSettings } from "../interfaces/IFeeSettings.sol";
 contract FeeSettings is IFeeSettings {
     mapping(bytes4 => FeeConfig) public functionFees;
 
+    // Define a new event for successful fee collection, including the token address
+   
+
     function _registerFunctionFees(
         bytes4 functionSelector,
         uint256 flatFee,
@@ -14,9 +17,9 @@ contract FeeSettings is IFeeSettings {
         address tokenAddress,
         address treasury
     ) internal {
-        // require(percentageFee <= 10000, "Percentage fee cannot exceed 100%");
-        if (percentageFee > 10000) revert FeePercentageCantExceed100();
-        // require(treasury != address(0), "Invalid treasury address");
+       
+        if (percentageFee > 1000) revert FeePercentageCantExceed100();
+      
         if (treasury == address(0)) revert AddressCantBeZero();
 
         functionFees[functionSelector] = FeeConfig({
@@ -39,27 +42,33 @@ contract FeeSettings is IFeeSettings {
         FeeConfig memory feeConfig = functionFees[functionSelector];
 
         if (!feeConfig.isRegistered) {
-            require(msg.value == 0, "Fees not configured for this function");
+            
             return 0;
         }
 
         uint256 totalFee = feeConfig.flatFee;
         if (amount > 0) {
-            totalFee += (amount * feeConfig.percentageFee) / 10000;
+            totalFee += (amount * feeConfig.percentageFee) / 1000;
         }
 
         if (feeConfig.tokenAddress == address(0)) {
-            // Native token
-            require(msg.value >= totalFee, "Insufficient fee");
-            if (msg.value > totalFee) {
+            
+            // payable(feeConfig.treasury).transfer(totalFee);
+            (bool success, ) = payable(feeConfig.treasury).call{value: totalFee}("");
+            require(success, "Transfer failed");
+            if(msg.value > totalFee){
                 payable(from).transfer(msg.value - totalFee);
             }
-            payable(feeConfig.treasury).transfer(totalFee);
+            return totalFee;
+            
         } else {
             // ERC20 token
             require(msg.value == 0, "Do not send ETH with ERC20 fee");
             IERC20(feeConfig.tokenAddress).transferFrom(from, feeConfig.treasury, totalFee);
         }
+
+        // Emit the FeesCollected event, including the token address
+        emit FeesCollected(from, functionSelector,totalFee, feeConfig.tokenAddress);
 
         return totalFee;
     }

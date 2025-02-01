@@ -32,6 +32,9 @@ interface IFeeSettings {
         bytes4 indexed functionSelector, uint256 flatFee, uint256 percentageFee, address tokenAddress, address treasury
     );
 
+    // Declare the FeesCollected event
+    event FeesCollected(address indexed from,bytes4 indexed functionSelector,uint256 amount,address tokenAddress);
+
     /*
     --------------------------
     ----------FUNCTIONS----------
@@ -39,4 +42,7 @@ interface IFeeSettings {
     */
     function collectFees(address from, uint256 amount, bytes4 sig) external payable returns (uint256);
     function getFunctionSelector(string calldata functionSignature) external pure returns (bytes4);
+
+    // Getter for the functionFees mapping
+    function functionFees(bytes4 functionSelector) external view returns (uint256 flatFee, uint256 percentageFee, address tokenAddress, address treasury, bool isRegistered);
 }

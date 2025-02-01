@@ -20,9 +20,10 @@ contract UserFactory is IUserFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
     }
 
     function initialize(address _settings, address _registry, address _userSettings) public initializer {
-        __Ownable_init(msg.sender);
+      
         __UUPSUpgradeable_init();
-        settings = IFeeSettings(_settings);
+        __Ownable_init(msg.sender);
+    settings = IFeeSettings(_settings);
         registry = IRegistry(_registry);
         userSettings = IFeeSettings(_userSettings);
     }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import "../YieldProviderService.sol";
+import { YieldProviderService } from "../YieldProviderService.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -23,10 +23,10 @@ contract YieldProviderFactory is IYieldProviderServiceFactory, Ownable2StepUpgra
         implementation = _bondImplementation;
     }
 
-    function createYPS(address _aavePoolAddress) external override returns (address) {
+    function createYPS(address _aavePoolAddress, address _aToken) external override returns (address) {
         address newYPS = implementation.clone();
 
-        YieldProviderService(newYPS).initialize(_aavePoolAddress);
+        YieldProviderService(newYPS).initialize(_aavePoolAddress, _aToken);
         return newYPS;
     }
 

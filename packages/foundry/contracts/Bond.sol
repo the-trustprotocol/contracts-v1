@@ -3,20 +3,14 @@
 pragma solidity 0.8.28;
 
 import { IBond } from "./interfaces/IBond.sol";
-import "./YieldProviderService.sol";
-import { IYieldProviderServiceFactory } from "./interfaces/IYieldProviderServiceFactory.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
-import { IPool } from "@aave/interfaces/IPool.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import { IPoolAddressesProvider } from "@aave/interfaces/IPoolAddressesProvider.sol";
-import { IUiPoolDataProviderV3 } from "@aave-origin/periphery/contracts/misc/interfaces/IUiPoolDataProviderV3.sol";
 
 contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     address public collateralRequestedBy;
-    address public aavePoolAddress;
 
     uint256 public constant MAX_BPS = 10000;
 
@@ -26,10 +20,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     //we can replace the above 3 mappings with a struct and mapping of that struct
     mapping(address => bool) public isUser;
 
-    IPool public aavePool;
-    IYieldProviderService public YPS;
-    IUiPoolDataProviderV3 public UiPoolDataProvider;
-    IYieldProviderServiceFactory public YPSFactory;
+    IYieldProviderService public yps;
 
     BondDetails public bond;
 
@@ -42,15 +33,12 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         address _user1,
         address _user2,
         uint256 _user1Amount,
-        address _aavePoolAddress,
-        address _uiPoolDataAddress,
-        address _ypsFactoryAddress
+        address _yieldProviderServiceAddress
     ) external initializer {
         __Ownable_init(msg.sender); //need to think who should be the owner, we might not need this
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
 
-        aavePool = IPool(_aavePoolAddress);
         uint256 totalBondAmount = _user1Amount;
 
         bond = BondDetails({
@@ -69,11 +57,8 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         individualPercentage[_user1] = 100;
         isUser[_user1] = true;
         isUser[_user2] = true;
-        YPSFactory = IYieldProviderServiceFactory(_ypsFactoryAddress);
-        address yieldProvider = YPSFactory.createYPS(_aavePoolAddress);
-        YPS = IYieldProviderService(yieldProvider);
-        UiPoolDataProvider = IUiPoolDataProviderV3(_uiPoolDataAddress);
-        YPS.stake(_asset, _user1, _user1Amount);
+        yps = IYieldProviderService(_yieldProviderServiceAddress);
+        yps.stake(_asset, _user1, _user1Amount);
 
         emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
     }
@@ -87,11 +72,12 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     function stake(uint256 _amount) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
+        //always the token In should be same as the bond asset
         individualAmount[msg.sender] = _amount;
         bond.totalBondAmount += _amount;
         individualPercentage[bond.user1] = (individualAmount[bond.user1] * MAX_BPS) / bond.totalBondAmount;
         individualPercentage[bond.user2] = (individualAmount[bond.user2] * MAX_BPS) / bond.totalBondAmount;
-        YPS.stake(bond.asset, address(this), _amount);
+        yps.stake(bond.asset, address(this), _amount);
         return bond;
     }
 
@@ -103,7 +89,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         individualAmount[msg.sender] = 0;
         bond.isWithdrawn = true;
         bond.isActive = false;
-        YPS.withdrawBond(bond.asset, msg.sender, withdrawable);
+        yps.withdrawBond(bond.asset, msg.sender, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
@@ -114,7 +100,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         _freezed();
         bond.isBroken = true;
         bond.isActive = false;
-        YPS.withdrawBond(bond.asset, msg.sender, bond.totalBondAmount);
+        yps.withdrawBond(bond.asset, msg.sender, bond.totalBondAmount);
         emit BondBroken(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
@@ -126,7 +112,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         if (claimableYield[msg.sender] == 0) revert NothingToClaim();
         uint256 userClaimableYield = claimableYield[msg.sender];
         claimableYield[msg.sender] = 0;
-        YPS.withdrawBond(bond.asset, msg.sender, userClaimableYield);
+        yps.withdrawBond(bond.asset, msg.sender, userClaimableYield);
     }
 
     function requestForCollateral() external override {
@@ -176,11 +162,9 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     }
 
     function _calcYield() private {
-        (IUiPoolDataProviderV3.AggregatedReserveData[] memory aggregatedReserveData,) =
-            UiPoolDataProvider.getReservesData(IPoolAddressesProvider(aavePoolAddress));
-        address aToken = aggregatedReserveData[0].aTokenAddress;
+        address aToken = yps.getAToken();
         uint256 aTokenBalance = IERC20(aToken).balanceOf(address(this));
-        uint256 yield = aTokenBalance - bond.totalBondAmount;
+        uint256 yield = aTokenBalance - bond.totalBondAmount; // only works with stable coins, if the all aTokens are ERC20
         claimableYield[bond.user1] = (individualPercentage[bond.user1] * yield) / MAX_BPS;
         claimableYield[bond.user2] = (individualPercentage[bond.user2] * yield) / MAX_BPS;
     }

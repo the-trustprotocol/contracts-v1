@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import "../Bond.sol";
+import { Bond } from "../Bond.sol";
 import { IBondFactory } from "../interfaces/IBondFactory.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
@@ -28,15 +28,11 @@ contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         address _user1,
         address _user2,
         uint256 _totalAmount,
-        address _aavePoolAddress,
-        address _uiPoolDataAddress,
-        address _ypsFactoryAddress
+        address _yieldProviderServiceAddress
     ) external override onlyOwner returns (address) {
         address newBond = implementation.clone();
 
-        Bond(newBond).initialize(
-            _asset, _user1, _user2, _totalAmount, _aavePoolAddress, _uiPoolDataAddress, _ypsFactoryAddress
-        );
+        Bond(newBond).initialize(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress);
         return newBond;
     }
 

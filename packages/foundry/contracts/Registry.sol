@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "./interfaces/IRegistry.sol";
+import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IRegistry } from "./interfaces/IRegistry.sol";
 
 contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
     mapping(address => address) public addressToUserContracts;
 
+    //only constant or immutable variables should be in cap case
     string public VERSION;
 
     address[] public trustedUpdaters;
@@ -27,14 +28,15 @@ contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 
+    // private function seems more gas optimized than modifier, we should change it to the private function
     modifier onlyTrustedUpdaterOrOwner() {
-        require(isTrustedUpdater[msg.sender] || msg.sender == owner(), "Not a trusted updater or owner");
+        if (!(isTrustedUpdater[msg.sender] || msg.sender == owner())) revert NotATrustedUpdaterOrOwner();
         _;
     }
 
     function addTrustedUpdater(address updater) external onlyOwner {
-        require(updater != address(0), "Invalid address");
-        require(!isTrustedUpdater[updater], "Already trusted updater");
+        if (updater == address(0)) revert AddressCantBeZero();
+        if (isTrustedUpdater[updater]) revert UpdaterAlreadyExists();
 
         trustedUpdaters.push(updater);
         isTrustedUpdater[updater] = true;
@@ -43,7 +45,7 @@ contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
     }
 
     function removeTrustedUpdater(address updater) external onlyOwner {
-        require(isTrustedUpdater[updater], "Not a trusted updater");
+        if (!isTrustedUpdater[updater]) revert UpdaterDoesNotExist();
 
         isTrustedUpdater[updater] = false;
 
@@ -60,8 +62,8 @@ contract Registry is IRegistry, Ownable2StepUpgradeable, UUPSUpgradeable {
     }
 
     function setUserContract(address user, address contractAddress) external onlyTrustedUpdaterOrOwner {
-        require(user != address(0), "Invalid user address");
-        require(contractAddress != address(0), "Invalid contract address");
+        if (user == address(0)) revert AddressCantBeZero();
+        if (contractAddress == address(0)) revert AddressCantBeZero();
         addressToUserContracts[user] = contractAddress;
         emit UserContractUpdated(user, contractAddress);
     }

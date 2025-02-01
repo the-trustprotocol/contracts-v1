@@ -7,8 +7,6 @@ interface IBondFactory {
         address _user1,
         address _user2,
         uint256 _totalAmount,
-        address _aavePoolAddress,
-        address _uiPoolDataAddress,
-        address _ypsFactoryAddress
+        address _yieldProviderServiceAddress
     ) external returns (address);
 }

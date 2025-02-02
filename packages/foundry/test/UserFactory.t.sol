@@ -77,37 +77,13 @@ contract UserFactoryTest is Test {
     assertEq(user, registry.addressToUserContracts(owner));
     vm.stopPrank();
   }
-
-  // function test_createUserWithFlatFees(
-  //   uint256 flatFee,
-  //   address treasury
-  // ) public {
-  //   vm.startPrank(owner);
-  //   vm.deal(owner, 300 ether);
-  //   vm.assume(treasury != address(0));
-  //   vm.assume(flatFee > 0.1 ether && flatFee < 200 ether); 
-  //   bytes4 functionBytes = IFeeSettings(address(settings)).getFunctionSelector("createUser()");
-
-  //   settings.registerFunctionFees(functionBytes, flatFee, 0, address(0), treasury);
-  //   (uint256 _flatFee, uint256 percentageFee, address tokenAddress, address _treasury, bool _isRegistered) = settings.functionFees(functionBytes);
-  //   assertEq(_flatFee, flatFee);
-  //   assertEq(percentageFee, 0);
-  //   assertEq(tokenAddress, address(0));
-  //   assertEq(_treasury, treasury);
-  //   assertEq(_isRegistered, true);
-
-  //   address user = userFactory.createUser{ value: flatFee + 1 ether}();
-
-  //   assertEq(treasury.balance, flatFee);
-  //   assertEq(user, registry.addressToUserContracts(owner));
-  //   vm.stopPrank();
-  // }
   function test_createUserWithFlatFees() public {
     vm.startPrank(owner);
     vm.deal(owner,2 ether);
     bytes4 functionBytes = IFeeSettings(address(settings)).getFunctionSelector("createUser()");
     settings.registerFunctionFees(functionBytes, 1 ether, 0, address(0), treasury);
     address user = userFactory.createUser{ value: 2 ether}();
+    assertEq(user, registry.addressToUserContracts(owner));
     assertEq(treasury.balance,1 ether);
     assertEq(owner.balance,1 ether);
     vm.stopPrank();
@@ -121,6 +97,7 @@ contract UserFactoryTest is Test {
     settings.registerFunctionFees(functionBytes, 0, percentage, address(0), treasury);
     uint256 expectedFee = (totalFee * percentage) / 1000;
     address user = userFactory.createUser{ value: totalFee}();
+    assertEq(user, registry.addressToUserContracts(owner));
     console.log("treasury.balance",treasury.balance);
     console.log("expectedFee",expectedFee);
     console.log("owner.balance",owner.balance);
@@ -129,31 +106,21 @@ contract UserFactoryTest is Test {
     vm.stopPrank();
   }
 
-  // function test_createUserWithPercentageFees(
-  //   uint256 percentageFee,
-  //   address treasury
-  // ) public {
-  //   vm.startPrank(owner);
-  //   vm.assume(percentageFee > 0 && percentageFee <= 1000);
-  //   vm.assume(treasury != address(0));
+  function test_createUserWithTokenFees() public {
+    vm.startPrank(owner);
+    vm.deal(owner,1 ether);
+    uint256 percentage = 100;
+    uint256 feeSent = 1 ether;
+    uint256 totalFee = 0.5 ether;
+    bytes4 functionBytes = IFeeSettings(address(settings)).getFunctionSelector("createUser()");
+    settings.registerFunctionFees(functionBytes,  totalFee ,percentage, address(0), treasury);
+    address user = userFactory.createUser{ value: feeSent}();
+    assertEq(user, registry.addressToUserContracts(owner));
+    uint256 expectedFee = ((feeSent  * percentage) / 1000) + totalFee;
+    assertEq(treasury.balance,expectedFee);
+    assertEq(owner.balance,feeSent - expectedFee);
+    vm.stopPrank();
+  }
 
-  //   uint256 totalFee = 1 ether;
-  //   bytes4 functionBytes = IFeeSettings(address(settings)).getFunctionSelector("createUser()");
-  //   settings.registerFunctionFees(functionBytes, 0, percentageFee, address(0), treasury);
-  //   (uint256 _flatFee, uint256 _percentageFee, address tokenAddress, address _treasury, bool _isRegistered) = settings.functionFees(functionBytes);
-  //   assertEq(_flatFee, 0);
-  //   assertEq(_percentageFee, percentageFee);
-  //   assertEq(tokenAddress, address(0));
-  //   assertEq(_treasury, treasury);
-  //   assertEq(_isRegistered, true);
 
-  //   console.log("treasury fee... before...", treasury.balance);
-  //   address user = userFactory.createUser{value: totalFee}();
-  //   console.log("treasury.balance", treasury.balance);
-  //   uint256 expectedFee = (totalFee * percentageFee) / 1000;
-  //   console.log("expectedFee", expectedFee);
-  //   assertEq(treasury.balance, expectedFee);
-  //   assertEq(user, registry.addressToUserContracts(owner));
-  //   vm.stopPrank();
-  // }
 }

@@ -58,7 +58,12 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         isUser[_user1] = true;
         isUser[_user2] = true;
         yps = IYieldProviderService(_yieldProviderServiceAddress);
-        yps.stake(_asset, _user1, _user1Amount);
+        // Transfer tokens from `alice` to the Bond contract
+        // IERC20(_asset).transferFrom(_user1, address(this), _user1Amount);
+        bool success = IERC20(_asset).transferFrom(_user1, address(this), _user1Amount);
+        bool success2 = IERC20(_asset).approve(address(yps), _user1Amount);
+        bool success3 = IERC20(_asset).transfer(address(yps), _user1Amount);
+        yps.stake(_asset, address(this), _user1Amount);
 
         emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
     }
@@ -73,6 +78,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         _onlyActive();
         _onlyUser();
         //always the token In should be same as the bond asset
+        //seems like the above comment no need to be, if we settle in eth and stake in any coin...
         individualAmount[msg.sender] = _amount;
         bond.totalBondAmount += _amount;
         individualPercentage[bond.user1] = (individualAmount[bond.user1] * MAX_BPS) / bond.totalBondAmount;

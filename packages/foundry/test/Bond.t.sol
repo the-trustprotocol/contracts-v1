@@ -35,14 +35,14 @@ contract BondTest is TestnetProcedures {
 
     string public marketId;
 
-    address public owner = makeAddr("owner address");
-    address public user1 = makeAddr("user1 address");
-    address public user2 = makeAddr("user2 address");
+    // address public owner = makeAddr("owner address");
+    // address public user1 = makeAddr("user1 address");
+    // address public user2 = makeAddr("user2 address");
 
-    uint256 public user1Initial;
+    // uint256 public user1Initial;
 
-    ERC20Mock public token;
-    ERC20Mock public aToken;
+    // ERC20Mock public token;
+    // ERC20Mock public aToken;
 
     function setUp() public {
         // vm.startPrank(owner);
@@ -72,23 +72,44 @@ contract BondTest is TestnetProcedures {
 
         // bondFactory = new BondFactory();
 
-        // bond = new Bond();
+        bond = new Bond();
         
-        // bondProxy = new ERC1967Proxy(address(bond), "");
-        // bond = Bond(address(bondProxy));
+        bondProxy = new ERC1967Proxy(address(bond), "");
+        bond = Bond(address(bondProxy));
 
-        // yps = new YieldProviderService();
-        // ypsProxy = new ERC1967Proxy(address(yps), "");
-        // yps = YieldProviderService(address(ypsProxy));
-        // yps.initialize(address(pool), address(aToken));
-        // console.log("yps address......",address(yps));
+        yps = new YieldProviderService();
+        ypsProxy = new ERC1967Proxy(address(yps), "");
+        yps = YieldProviderService(address(ypsProxy));
+        yps.initialize(address(contracts.poolProxy), address(aUSDX));
+        console.log("yps address......",address(yps));
+        console.log(tokenList.usdx);
 
+  
         // token.approve(user1, 1_000_000 * 1e18);
         // token.approve(user2, 1_000_000 * 1e18);
         // token.transfer(user1, 1_000_000 * 1e18);
+        vm.prank(alice);
+        assertEq(IERC20(tokenList.usdx).balanceOf(alice), 100_000e6);
 
-        // // bond.initialize(address(token), user1, user2, user1Initial, address(yps));
-        // vm.stopPrank();
+        // vm.prank(alice);
+        // IERC20(tokenList.usdx).approve(address(yps), 1e6);
+        // console.log("Allowance:", IERC20(tokenList.usdx).allowance(alice, address(yps)));
+
+        vm.prank(alice);
+        IERC20(tokenList.usdx).approve(address(bond), 1e6);
+        console.log("Allowance:", IERC20(tokenList.usdx).allowance(alice, address(bond)));
+
+        vm.prank(address(yps));
+        IERC20(tokenList.usdx).approve(address(contracts.poolProxy), 1e6);
+
+
+        console.log("Bond contract balance:", IERC20(tokenList.usdx).balanceOf(address(bond)));
+        vm.prank(alice);
+        bond.initialize(tokenList.usdx, alice, bob, 1e6, address(yps));
+        console.log("allowance bond-yps", IERC20(tokenList.usdx).allowance(address(bond), address(yps)));
+        console.log("Bond contract balance:", IERC20(tokenList.usdx).balanceOf(address(bond)));
+        console.log("Alice balance:", IERC20(tokenList.usdx).balanceOf(alice));
+        console.log("yps balance:", IERC20(tokenList.usdx).balanceOf(address(yps)));
     }
 
     // function test_initialization() public view {

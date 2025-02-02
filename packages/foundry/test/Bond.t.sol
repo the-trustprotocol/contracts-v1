@@ -12,8 +12,11 @@ import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import {PoolAddressesProvider} from "@aave-origin/core/contracts/protocol/configuration/PoolAddressesProvider.sol";
 import {IPoolAddressesProvider} from "@aave-origin/core/contracts/interfaces/IPoolAddressesProvider.sol";
+import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 import {TestnetProcedures} from "@aave-origin-tests/utils/TestnetProcedures.sol";
+
+import {IAToken} from "@aave-origin/core/contracts/interfaces/IAToken.sol";
 
 contract BondTest is TestnetProcedures {
     Bond public bond;
@@ -100,19 +103,19 @@ contract BondTest is TestnetProcedures {
     //     assertEq(_isFreezed, false);
     // }
 
-    // function test_firstSupply() public {
-    //     uint256 supplyAmount = 0.2e8;
-    //     uint256 underlyingBalanceBefore = IERC20(tokenList.wbtc).balanceOf(alice);
+    function test_firstSupply() public {
+        uint256 supplyAmount = 0.2e8;
+        uint256 underlyingBalanceBefore = IERC20(tokenList.wbtc).balanceOf(alice);
 
-    //     vm.expectEmit(report.poolProxy);
-    //     emit ReserveUsedAsCollateralEnabled(tokenList.wbtc, alice);
-    //     vm.expectEmit(report.poolProxy);
-    //     emit Supply(tokenList.wbtc, alice, alice, supplyAmount, 0);
+        // vm.expectEmit(report.poolProxy);
+        // emit ReserveUsedAsCollateralEnabled(tokenList.wbtc, alice);
+        // vm.expectEmit(report.poolProxy);
+        // emit Supply(tokenList.wbtc, alice, alice, supplyAmount, 0);
 
-    //     vm.prank(alice);
-    //     contracts.poolProxy.supply(tokenList.wbtc, supplyAmount, alice, 0);
+        vm.prank(alice);
+        contracts.poolProxy.supply(tokenList.wbtc, supplyAmount, alice, 0);
 
-    //     assertEq(IERC20(tokenList.wbtc).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
-    //     assertEq(IAToken(aWBTC).scaledBalanceOf(alice), supplyAmount);
-    // }
+        assertEq(IERC20(tokenList.wbtc).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
+        assertEq(IAToken(aWBTC).scaledBalanceOf(alice), supplyAmount);
+    }
 }

@@ -2,6 +2,8 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
+
+import {console} from "forge-std/console.sol";
 import "../contracts/Registry.sol";
 import "../contracts/RegistryV2.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
@@ -44,7 +46,7 @@ contract RegistryTest is Test {
 
     function test_setUserContract_invalidUser() public {
         vm.prank(owner);
-        vm.expectRevert("Invalid user address");
+        vm.expectRevert(abi.encodeWithSelector(IRegistry.AddressCantBeZero.selector));
         registry.setUserContract(address(0), address(0x456));
     }
 }

@@ -7,16 +7,16 @@ import {console} from "forge-std/console.sol";
 import { Bond } from "../contracts/Bond.sol";
 import { YieldProviderService } from "../contracts/YieldProviderService.sol";
 import { BondFactory } from "../contracts/factories/BondFactory.sol";
-import { MockPoolInherited } from "@aave-v3-origin/src/core/contracts/mocks/helpers/MockPool.sol";
+import { MockPoolInherited } from "@aave-v3-origin/src/contracts/mocks/helpers/MockPool.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
-import {PoolAddressesProvider} from "@aave-v3-origin/src/core/contracts/protocol/configuration/PoolAddressesProvider.sol";
-import {IPoolAddressesProvider} from "@aave-v3-origin/src/core/contracts/interfaces/IPoolAddressesProvider.sol";
+import {PoolAddressesProvider} from "@aave-v3-origin/src/contracts/protocol/configuration/PoolAddressesProvider.sol";
+import {IPoolAddressesProvider} from "@aave-v3-origin/src/contracts/interfaces/IPoolAddressesProvider.sol";
 import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 import {TestnetProcedures} from "@aave-v3-origin/tests/utils/TestnetProcedures.sol";
 
-import {IAToken} from "@aave-v3-origin/src/core/contracts/interfaces/IAToken.sol";
+import {IAToken} from "@aave-v3-origin/src/contracts/interfaces/IAToken.sol";
 
 contract BondTest is TestnetProcedures {
     Bond public bond;
@@ -45,8 +45,8 @@ contract BondTest is TestnetProcedures {
     ERC20Mock public aToken;
 
     function setUp() public {
-        vm.startPrank(owner);
-        vm.deal(owner, 1 ether);
+        // vm.startPrank(owner);
+        // vm.deal(owner, 1 ether);
         initTestEnvironment();
 
         (aUSDX, , ) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.usdx);
@@ -103,19 +103,19 @@ contract BondTest is TestnetProcedures {
     //     assertEq(_isFreezed, false);
     // }
 
-    // function test_firstSupply() public {
-    //     uint256 supplyAmount = 0.2e8;
-    //     uint256 underlyingBalanceBefore = IERC20(tokenList.wbtc).balanceOf(alice);
+    function test_firstSupply() public {
+        uint256 supplyAmount = 0.2e8;
+        uint256 underlyingBalanceBefore = IERC20(tokenList.wbtc).balanceOf(alice);
 
-    //     // vm.expectEmit(report.poolProxy);
-    //     // emit ReserveUsedAsCollateralEnabled(tokenList.wbtc, alice);
-    //     // vm.expectEmit(report.poolProxy);
-    //     // emit Supply(tokenList.wbtc, alice, alice, supplyAmount, 0);
+        // vm.expectEmit(report.poolProxy);
+        // emit ReserveUsedAsCollateralEnabled(tokenList.wbtc, alice);
+        // vm.expectEmit(report.poolProxy);
+        // emit Supply(tokenList.wbtc, alice, alice, supplyAmount, 0);
 
-    //     vm.prank(alice);
-    //     contracts.poolProxy.supply(tokenList.wbtc, supplyAmount, alice, 0);
+        vm.prank(alice);
+        contracts.poolProxy.supply(tokenList.wbtc, supplyAmount, alice, 0);
 
-    //     assertEq(IERC20(tokenList.wbtc).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
-    //     assertEq(IAToken(aWBTC).scaledBalanceOf(alice), supplyAmount);
-    // }
+        assertEq(IERC20(tokenList.wbtc).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
+        assertEq(IAToken(aWBTC).scaledBalanceOf(alice), supplyAmount);
+    }
 }

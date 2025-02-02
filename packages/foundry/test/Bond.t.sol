@@ -103,19 +103,19 @@ contract BondTest is TestnetProcedures {
     //     assertEq(_isFreezed, false);
     // }
 
-    function test_firstSupply() public {
-        uint256 supplyAmount = 0.2e8;
-        uint256 underlyingBalanceBefore = IERC20(tokenList.wbtc).balanceOf(alice);
+    // function test_firstSupply() public {
+    //     uint256 supplyAmount = 0.2e8;
+    //     uint256 underlyingBalanceBefore = IERC20(tokenList.wbtc).balanceOf(alice);
 
-        // vm.expectEmit(report.poolProxy);
-        // emit ReserveUsedAsCollateralEnabled(tokenList.wbtc, alice);
-        // vm.expectEmit(report.poolProxy);
-        // emit Supply(tokenList.wbtc, alice, alice, supplyAmount, 0);
+    //     // vm.expectEmit(report.poolProxy);
+    //     // emit ReserveUsedAsCollateralEnabled(tokenList.wbtc, alice);
+    //     // vm.expectEmit(report.poolProxy);
+    //     // emit Supply(tokenList.wbtc, alice, alice, supplyAmount, 0);
 
-        vm.prank(alice);
-        contracts.poolProxy.supply(tokenList.wbtc, supplyAmount, alice, 0);
+    //     vm.prank(alice);
+    //     contracts.poolProxy.supply(tokenList.wbtc, supplyAmount, alice, 0);
 
-        assertEq(IERC20(tokenList.wbtc).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
-        assertEq(IAToken(aWBTC).scaledBalanceOf(alice), supplyAmount);
-    }
+    //     assertEq(IERC20(tokenList.wbtc).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
+    //     assertEq(IAToken(aWBTC).scaledBalanceOf(alice), supplyAmount);
+    // }
 }

@@ -3,3 +3,4 @@
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
 @eas-contracts/=lib/eas-contracts/contracts/
 @aave-v3-origin/=lib/aave-v3-origin/
+solidity-utils/=lib/aave-v3-origin/lib/solidity-utils/src

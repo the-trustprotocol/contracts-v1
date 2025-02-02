@@ -4,3 +4,4 @@
 @aave=lib/aave-v3-core/contracts
 @eas-contracts/=lib/eas-contracts/contracts/
 @aave-origin=lib/aave-v3-origin/src/
+@aave-origin-tests=lib/aave-v3-origin/tests

@@ -1,7 +1,4 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @openzeppelin/contracts/=lib/openzeppelin-contracts-upgradeable/lib/openzeppelin-contracts/contracts/
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
-@aave=lib/aave-v3-core/contracts
 @eas-contracts/=lib/eas-contracts/contracts/
-@aave-origin=lib/aave-v3-origin/src/
-@aave-origin-tests=lib/aave-v3-origin/tests

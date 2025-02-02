@@ -7,9 +7,6 @@
 [submodule "packages/foundry/lib/solidity-bytes-utils"]
 	path = packages/foundry/lib/solidity-bytes-utils
 	url = https://github.com/gnsps/solidity-bytes-utils
-[submodule "packages/foundry/lib/aave-v3-core"]
-	path = packages/foundry/lib/aave-v3-core
-	url = https://github.com/aave/aave-v3-core
 [submodule "packages/foundry/lib/openzeppelin-foundry-upgrades"]
 	path = packages/foundry/lib/openzeppelin-foundry-upgrades
 	url = https://github.com/OpenZeppelin/openzeppelin-foundry-upgrades
@@ -19,9 +16,6 @@
 [submodule "packages/foundry/lib/eas-contracts"]
 	path = packages/foundry/lib/eas-contracts
 	url = https://github.com/ethereum-attestation-service/eas-contracts
-[submodule "packages/foundry/lib/aave-v3-origin"]
-	path = packages/foundry/lib/aave-v3-origin
-	url = https://github.com/aave-dao/aave-v3-origin
 [submodule "packages/foundry/lib/solidity-utils"]
 	path = packages/foundry/lib/solidity-utils
 	url = https://github.com/bgd-labs/solidity-utils

@@ -129,27 +129,8 @@ contract BondTest is TestnetProcedures {
         assertEq(bond.individualPercentage(bob), 0);
     }
 
-    // function testFuzz_stake(uint256 _stakeAmount) public {
-    //     vm.assume(_stakeAmount >= 1e6 && _stakeAmount <= 100e6);
-
-    //     vm.prank(bob);
-    //     IERC20(tokenList.usdx).approve(address(bond), _stakeAmount);
-    //     console.log("Allowance:", IERC20(tokenList.usdx).allowance(alice, address(bond)));
-
-    //     vm.prank(address(yps));
-    //     IERC20(tokenList.usdx).approve(address(contracts.poolProxy), _stakeAmount);
-
-    //     vm.prank(bob);
-    //     bond.stake(tokenList.usdx, bob, _stakeAmount);
-    //     (, , , uint256 _totalBondAmount, , , , , ) = bond.bond();
-    //     console.log("a token balance:", IERC20(aUSDX).balanceOf(address(bond)));
-    //     console.log("total bond amount:", _totalBondAmount);
-    //     assert(_totalBondAmount <= IERC20(aUSDX).balanceOf(address(bond)));
-    // }
-
-    function test_stake() public {
-        // vm.assume(_stakeAmount >= 1e6 && _stakeAmount <= 100e6);
-        uint256 _stakeAmount = 1e6;
+    function testFuzz_stake(uint256 _stakeAmount) public {
+        vm.assume(_stakeAmount >= 1e6 && _stakeAmount <= 100e6);
 
         vm.prank(bob);
         IERC20(tokenList.usdx).approve(address(bond), _stakeAmount);

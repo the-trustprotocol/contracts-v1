@@ -5,6 +5,8 @@ pragma solidity 0.8.28;
 import { IPool } from "@aave-v3-origin/src/contracts/interfaces/IPool.sol";
 import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+
+import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
@@ -35,6 +37,8 @@ contract YieldProviderService is
     }
 
     function stake(address _assetAddress, address _user, uint256 _amount) external override nonReentrant {
+        IERC20(_assetAddress).transferFrom(_user, address(this), _amount);
+        IERC20(_assetAddress).approve(address(pool), _amount);
         pool.supply(_assetAddress, _amount, _user, 0);
     }
 

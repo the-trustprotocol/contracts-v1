@@ -83,6 +83,7 @@ contract BondTest is TestnetProcedures {
         yps = YieldProviderService(address(ypsProxy));
         yps.initialize(address(contracts.poolProxy), address(aUSDX));
         console.log("yps address......",address(yps));
+        console.log(address(aUSDX));
         console.log(tokenList.usdx);
 
         vm.prank(alice);
@@ -108,6 +109,7 @@ contract BondTest is TestnetProcedures {
         console.log("Alice balance:", IERC20(tokenList.usdx).balanceOf(alice));
         console.log("yps balance:", IERC20(tokenList.usdx).balanceOf(address(yps)));
         console.log("ausdx balance which is a token", IERC20(aUSDX).balanceOf(address(bond)));
+        console.log("ausdx balance which is a token", IERC20(aUSDX).balanceOf(address(yps)));
         assert(IERC20(aUSDX).balanceOf(address(bond)) >= user1Initial);
     }
 
@@ -134,7 +136,7 @@ contract BondTest is TestnetProcedures {
 
         vm.prank(bob);
         IERC20(tokenList.usdx).approve(address(bond), _stakeAmount);
-        console.log("Allowance:", IERC20(tokenList.usdx).allowance(alice, address(bond)));
+        console.log("Allowance bob-yps:", IERC20(tokenList.usdx).allowance(bob, address(bond)));
 
         vm.prank(address(yps));
         IERC20(tokenList.usdx).approve(address(contracts.poolProxy), _stakeAmount);
@@ -147,7 +149,11 @@ contract BondTest is TestnetProcedures {
         assert(_totalBondAmount <= IERC20(aUSDX).balanceOf(address(bond)));
     }
 
-    function testFuzz_withdraw() public {
+    function test_withdraw() public {
+
+        vm.prank(address(bond));
+        bond.withdrawBond(tokenList.usdx, alice);
+
     }
 
     function testFuzz_collectYield() public {

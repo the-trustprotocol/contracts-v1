@@ -84,23 +84,24 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         individualPercentage[bond.user1] = (individualAmount[bond.user1] * MAX_BPS) / bond.totalBondAmount;
         individualPercentage[bond.user2] = (individualAmount[bond.user2] * MAX_BPS) / bond.totalBondAmount;
 
-        bool success = IERC20(_asset).transferFrom(stakingBy, address(this), _amount);
-        bool success2 = IERC20(_asset).approve(address(yps), _amount);
-        bool success3 = IERC20(_asset).transfer(address(yps), _amount);
+        // IERC20(_asset).approve(address(bob), _amount);
+        bool success = IERC20(_asset).transferFrom(stakingBy, address(yps), _amount);
+        // bool success2 = IERC20(_asset).approve(address(yps), _amount);
+        // bool success3 = IERC20(_asset).transfer(address(yps), _amount);
 
         yps.stake(_asset, address(this), _amount);
         return bond;
     }
 
-    function withdrawBond() external override nonReentrant returns (BondDetails memory) {
+    function withdrawBond(address _asset, address _to) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
-        _onlyUser();
+        // _onlyUser();
         _freezed();
-        uint256 withdrawable = individualAmount[msg.sender];
-        individualAmount[msg.sender] = 0;
+        uint256 withdrawable = individualAmount[_to];
+        individualAmount[_to] = 0;
         bond.isWithdrawn = true;
-        bond.isActive = false;
-        yps.withdrawBond(bond.asset, msg.sender, withdrawable);
+        // bond.isActive = false;
+        yps.withdrawBond(_asset, _to, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }

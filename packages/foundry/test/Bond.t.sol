@@ -107,6 +107,8 @@ contract BondTest is TestnetProcedures {
         console.log("Bond contract balance:", IERC20(tokenList.usdx).balanceOf(address(bond)));
         console.log("Alice balance:", IERC20(tokenList.usdx).balanceOf(alice));
         console.log("yps balance:", IERC20(tokenList.usdx).balanceOf(address(yps)));
+        console.log("ausdx balance which is a token", IERC20(aUSDX).balanceOf(address(bond)));
+        assert(IERC20(aUSDX).balanceOf(address(bond)) >= user1Initial);
     }
 
     function test_initialization() public view {
@@ -127,7 +129,41 @@ contract BondTest is TestnetProcedures {
         assertEq(bond.individualPercentage(bob), 0);
     }
 
-    function testFuzz_stake() public {
+    // function testFuzz_stake(uint256 _stakeAmount) public {
+    //     vm.assume(_stakeAmount >= 1e6 && _stakeAmount <= 100e6);
+
+    //     vm.prank(bob);
+    //     IERC20(tokenList.usdx).approve(address(bond), _stakeAmount);
+    //     console.log("Allowance:", IERC20(tokenList.usdx).allowance(alice, address(bond)));
+
+    //     vm.prank(address(yps));
+    //     IERC20(tokenList.usdx).approve(address(contracts.poolProxy), _stakeAmount);
+
+    //     vm.prank(bob);
+    //     bond.stake(tokenList.usdx, bob, _stakeAmount);
+    //     (, , , uint256 _totalBondAmount, , , , , ) = bond.bond();
+    //     console.log("a token balance:", IERC20(aUSDX).balanceOf(address(bond)));
+    //     console.log("total bond amount:", _totalBondAmount);
+    //     assert(_totalBondAmount <= IERC20(aUSDX).balanceOf(address(bond)));
+    // }
+
+    function test_stake() public {
+        // vm.assume(_stakeAmount >= 1e6 && _stakeAmount <= 100e6);
+        uint256 _stakeAmount = 1e6;
+
+        vm.prank(bob);
+        IERC20(tokenList.usdx).approve(address(bond), _stakeAmount);
+        console.log("Allowance:", IERC20(tokenList.usdx).allowance(alice, address(bond)));
+
+        vm.prank(address(yps));
+        IERC20(tokenList.usdx).approve(address(contracts.poolProxy), _stakeAmount);
+
+        vm.prank(bob);
+        bond.stake(tokenList.usdx, bob, _stakeAmount);
+        (, , , uint256 _totalBondAmount, , , , , ) = bond.bond();
+        console.log("a token balance:", IERC20(aUSDX).balanceOf(address(bond)));
+        console.log("total bond amount:", _totalBondAmount);
+        assert(_totalBondAmount <= IERC20(aUSDX).balanceOf(address(bond)));
     }
 
     function testFuzz_withdraw() public {

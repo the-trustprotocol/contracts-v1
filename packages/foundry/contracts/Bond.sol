@@ -74,16 +74,21 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     ----------------------------------
     */
 
-    function stake(uint256 _amount) external override nonReentrant returns (BondDetails memory) {
+    function stake(address _asset, address stakingBy, uint256 _amount) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
         //always the token In should be same as the bond asset
         //seems like the above comment no need to be, if we settle in eth and stake in any coin...
-        individualAmount[msg.sender] = _amount;
+        individualAmount[stakingBy] = _amount;
         bond.totalBondAmount += _amount;
         individualPercentage[bond.user1] = (individualAmount[bond.user1] * MAX_BPS) / bond.totalBondAmount;
         individualPercentage[bond.user2] = (individualAmount[bond.user2] * MAX_BPS) / bond.totalBondAmount;
-        yps.stake(bond.asset, address(this), _amount);
+
+        bool success = IERC20(_asset).transferFrom(stakingBy, address(this), _amount);
+        bool success2 = IERC20(_asset).approve(address(yps), _amount);
+        bool success3 = IERC20(_asset).transfer(address(yps), _amount);
+
+        yps.stake(_asset, address(this), _amount);
         return bond;
     }
 

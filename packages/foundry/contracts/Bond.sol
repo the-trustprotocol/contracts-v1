@@ -91,28 +91,35 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         _onlyUser();
         _freezed();
         _calcYield(_aAsset);
-        uint256 withdrawable = individualAmount[_to];
+        uint256 withdrawable = individualAmount[_to] + claimableYield[_to];
         individualAmount[_to] = 0;
         bond.isWithdrawn = true;
         // bond.isActive = false;
-        IERC20(_aAsset).transfer(address(yps), (withdrawable+claimableYield[_to]));
+        IERC20(_aAsset).transfer(address(yps), withdrawable);
         yps.withdrawBond(_asset, _to, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
 
-    function breakBond() external override nonReentrant returns (BondDetails memory) {
+    function breakBond(address _asset, address _to, address _aAsset) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
         _freezed();
+        _calcYield(_aAsset);
         bond.isBroken = true;
         bond.isActive = false;
-        yps.withdrawBond(bond.asset, msg.sender, bond.totalBondAmount);
+        individualAmount[bond.user1] = 0;
+        individualAmount[bond.user2] = 0;
+        // uint256 withdrawable = claimableYield[bond.user1] + claimableYield[bond.user2] + bond.totalBondAmount;
+        uint256 withdrawable = IERC20(_aAsset).balanceOf(address(this));
+        IERC20(_aAsset).transfer(address(yps), withdrawable);
+        yps.withdrawBond(_asset, _to, withdrawable);
         emit BondBroken(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
 
     function collectYield(address _aAsset) external override {
+        _onlyActive();
         _onlyUser();
         _freezed();
         _calcYield(_aAsset);

@@ -112,4 +112,29 @@ contract BondTest is TestnetProcedures {
         assert(balanceInBondBefore > IERC20(aUSDX).balanceOf(address(bond)));
         assertTrue(_isWithdrawn);
     }
+
+    function testFuzz_breakBond(uint256 _stakeAmount) public {
+        testFuzz_stake(_stakeAmount);
+
+        vm.warp(block.timestamp + 100000 days); //somehow its not increasing yield
+
+        uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(bob);
+
+        (, , ,uint256 _totalBondAmount , , , , , ) = bond.bond();
+        console.log(IERC20(aUSDX).balanceOf(address(bond)) - _totalBondAmount);
+
+        uint256 balanceInBondBefore = IERC20(aUSDX).balanceOf(address(bond));
+
+        vm.prank(bob);
+        bond.breakBond(tokenList.usdx, bob, aUSDX);
+
+        (, , , , , bool _isBroken, bool _isWithdrawn, bool _isActive, bool _isFreezed) = bond.bond();
+        assert(balanceBefore + _totalBondAmount <= IERC20(tokenList.usdx).balanceOf(bob));
+        assert(bond.individualAmount(bob) == 0);
+        assert(bond.individualAmount(alice) == 0);
+        assertFalse(balanceInBondBefore == IERC20(aUSDX).balanceOf(address(bond)));
+        assert(balanceInBondBefore > IERC20(aUSDX).balanceOf(address(bond)));
+        assertTrue(_isBroken);
+        assertFalse(_isActive);
+    }
 }

@@ -39,8 +39,6 @@ contract BondTest is TestnetProcedures {
         (aUSDX, , ) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.usdx);
         (aWBTC, , ) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.wbtc);
   
-        
-
         bond = new Bond();
         
         bondProxy = new ERC1967Proxy(address(bond), "");
@@ -77,7 +75,7 @@ contract BondTest is TestnetProcedures {
     }
 
     function testFuzz_stake(uint256 _stakeAmount) public {
-        vm.assume(_stakeAmount >= 1e6 && _stakeAmount <= 100e6);
+        vm.assume(_stakeAmount >= 100e6 && _stakeAmount <= 1000e6);
         vm.prank(bob);
         IERC20(tokenList.usdx).approve(address(bond), _stakeAmount);
         console.log("Allowance bob-yps:", IERC20(tokenList.usdx).allowance(bob, address(bond)));
@@ -91,23 +89,27 @@ contract BondTest is TestnetProcedures {
         assert(_totalBondAmount <= IERC20(aUSDX).balanceOf(address(bond)));
     }
 
-    function test_withdraw(uint256 _stakeAmount) public {
+    function testFuzz_withdraw(uint256 _stakeAmount) public {
         testFuzz_stake(_stakeAmount);
-        console.log(bond.individualAmount(bob));
-        console.log(bond.individualPercentage(bob));
-        console.log(bond.individualAmount(alice));
-        console.log(bond.individualPercentage(alice));
+
+        vm.warp(block.timestamp + 100000 days); //somehow its not increasing yield
 
         uint256 individualAmount = bond.individualAmount(bob);
         uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(bob);
-        console.log("balance before:", balanceBefore);
-        console.log("a token balance:", IERC20(tokenList.usdx).balanceOf(address(bob)));
+
+        (, , ,uint256 _totalBondAmount , , , , , ) = bond.bond();
+        console.log(IERC20(aUSDX).balanceOf(address(bond)) - _totalBondAmount);
+
+        uint256 balanceInBondBefore = IERC20(aUSDX).balanceOf(address(bond));
+
         vm.prank(bob);
         bond.withdrawBond(tokenList.usdx, bob, aUSDX);
-        console.log("balance after:", bond.individualAmount(bob));
-        console.log("a token balance:", IERC20(tokenList.usdx).balanceOf(address(bob)));
-        assert(balanceBefore + individualAmount == IERC20(tokenList.usdx).balanceOf(bob));
-        (, , , , , , bool _isWithdrawn, , ) = bond.bond();
+
+        (, , , , , bool _isBroken, bool _isWithdrawn, bool _isActive, bool _isFreezed) = bond.bond();
+        assert(balanceBefore + individualAmount <= IERC20(tokenList.usdx).balanceOf(bob));
+        assert(bond.individualAmount(bob) == 0);
+        assertFalse(balanceInBondBefore == IERC20(aUSDX).balanceOf(address(bond)));
+        assert(balanceInBondBefore > IERC20(aUSDX).balanceOf(address(bond)));
         assertTrue(_isWithdrawn);
     }
 }

@@ -90,11 +90,12 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         _onlyActive();
         _onlyUser();
         _freezed();
+        _calcYield(_aAsset);
         uint256 withdrawable = individualAmount[_to];
         individualAmount[_to] = 0;
         bond.isWithdrawn = true;
         // bond.isActive = false;
-        IERC20(_aAsset).transfer(address(yps), withdrawable);
+        IERC20(_aAsset).transfer(address(yps), (withdrawable+claimableYield[_to]));
         yps.withdrawBond(_asset, _to, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
@@ -111,10 +112,10 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         return bond;
     }
 
-    function collectYield() external override {
+    function collectYield(address _aAsset) external override {
         _onlyUser();
         _freezed();
-        _calcYield();
+        _calcYield(_aAsset);
         if (claimableYield[msg.sender] == 0) revert NothingToClaim();
         uint256 userClaimableYield = claimableYield[msg.sender];
         claimableYield[msg.sender] = 0;
@@ -167,8 +168,9 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         if (!isUser[msg.sender]) revert UserIsNotAOwnerForThisBond();
     }
 
-    function _calcYield() private {
-        address aToken = yps.getAToken();
+    function _calcYield(address _aAsset) private {
+        // address aToken = yps.getAToken();
+        address aToken = _aAsset;
         uint256 aTokenBalance = IERC20(aToken).balanceOf(address(this));
         uint256 yield = aTokenBalance - bond.totalBondAmount; // only works with stable coins, if the all aTokens are ERC20
         claimableYield[bond.user1] = (individualPercentage[bond.user1] * yield) / MAX_BPS;

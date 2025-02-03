@@ -86,13 +86,28 @@ contract BondTest is TestnetProcedures {
         (, , , uint256 _totalBondAmount, , , , , ) = bond.bond();
         console.log("a token balance:", IERC20(aUSDX).balanceOf(address(bond)));
         console.log("total bond amount:", _totalBondAmount);
+        assertEq(bond.individualAmount(bob), _stakeAmount);
+        // assertEq(bond.individualPercentage(bob), 0);
         assert(_totalBondAmount <= IERC20(aUSDX).balanceOf(address(bond)));
     }
 
-    // function test_withdraw() public {
+    function test_withdraw(uint256 _stakeAmount) public {
+        testFuzz_stake(_stakeAmount);
+        console.log(bond.individualAmount(bob));
+        console.log(bond.individualPercentage(bob));
+        console.log(bond.individualAmount(alice));
+        console.log(bond.individualPercentage(alice));
 
-    //     vm.prank(address(bond));
-    //     bond.withdrawBond(tokenList.usdx, alice);
-
-    // }
+        uint256 individualAmount = bond.individualAmount(bob);
+        uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(bob);
+        console.log("balance before:", balanceBefore);
+        console.log("a token balance:", IERC20(tokenList.usdx).balanceOf(address(bob)));
+        vm.prank(bob);
+        bond.withdrawBond(tokenList.usdx, bob, aUSDX);
+        console.log("balance after:", bond.individualAmount(bob));
+        console.log("a token balance:", IERC20(tokenList.usdx).balanceOf(address(bob)));
+        assert(balanceBefore + individualAmount == IERC20(tokenList.usdx).balanceOf(bob));
+        (, , , , , , bool _isWithdrawn, , ) = bond.bond();
+        assertTrue(_isWithdrawn);
+    }
 }

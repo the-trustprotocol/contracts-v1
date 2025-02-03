@@ -71,29 +71,30 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
     ----------------------------------
     */
 
-    function stake(address _asset, address stakingBy, uint256 _amount) external override nonReentrant returns (BondDetails memory) {
+    function stake(address _asset, address user, uint256 _amount) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
         //always the token In should be same as the bond asset
         //seems like the above comment no need to be, if we settle in eth and stake in any coin...
-        individualAmount[stakingBy] += _amount;
+        individualAmount[user] += _amount;
         bond.totalBondAmount += _amount;
         individualPercentage[bond.user1] = (individualAmount[bond.user1] * MAX_BPS) / bond.totalBondAmount;
         individualPercentage[bond.user2] = (individualAmount[bond.user2] * MAX_BPS) / bond.totalBondAmount;
-        bool success = IERC20(_asset).transferFrom(stakingBy, address(this), _amount);
+        bool success = IERC20(_asset).transferFrom(user, address(this), _amount);
         bool success2 = IERC20(_asset).approve(address(yps), _amount);
         yps.stake(_asset, address(this), _amount);
         return bond;
     }
 
-    function withdrawBond(address _asset, address _to) external override nonReentrant returns (BondDetails memory) {
+    function withdrawBond(address _asset, address _to, address _aAsset) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
-        // _onlyUser();
+        _onlyUser();
         _freezed();
         uint256 withdrawable = individualAmount[_to];
         individualAmount[_to] = 0;
         bond.isWithdrawn = true;
         // bond.isActive = false;
+        IERC20(_aAsset).transfer(address(yps), withdrawable);
         yps.withdrawBond(_asset, _to, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;

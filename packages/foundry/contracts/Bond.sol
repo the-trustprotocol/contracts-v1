@@ -35,7 +35,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         uint256 _user1Amount,
         address _yieldProviderServiceAddress
     ) external initializer {
-        __Ownable_init(msg.sender); //need to think who should be the owner, we might not need this
+        __Ownable_init(msg.sender); // it should be role based access control, will change it to that
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
 

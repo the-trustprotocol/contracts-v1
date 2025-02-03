@@ -24,6 +24,7 @@ contract BondTest is TestnetProcedures {
 
     address internal aUSDX;
     address internal aWBTC;
+    uint256 public user1Initial = 1e6;
 
     BondFactory public bondFactory;
     ERC1967Proxy public bondProxy;
@@ -33,7 +34,7 @@ contract BondTest is TestnetProcedures {
     // MockPoolInherited public pool;
     PoolAddressesProvider public poolAddressProvider;
 
-    string public marketId;
+    // string public marketId;
 
     // address public owner = makeAddr("owner address");
     // address public user1 = makeAddr("user1 address");
@@ -84,10 +85,6 @@ contract BondTest is TestnetProcedures {
         console.log("yps address......",address(yps));
         console.log(tokenList.usdx);
 
-  
-        // token.approve(user1, 1_000_000 * 1e18);
-        // token.approve(user2, 1_000_000 * 1e18);
-        // token.transfer(user1, 1_000_000 * 1e18);
         vm.prank(alice);
         assertEq(IERC20(tokenList.usdx).balanceOf(alice), 100_000e6);
 
@@ -100,43 +97,42 @@ contract BondTest is TestnetProcedures {
         console.log("Allowance:", IERC20(tokenList.usdx).allowance(alice, address(bond)));
 
         vm.prank(address(yps));
-        IERC20(tokenList.usdx).approve(address(contracts.poolProxy), 1e6);
+        IERC20(tokenList.usdx).approve(address(contracts.poolProxy), user1Initial);
 
 
         console.log("Bond contract balance:", IERC20(tokenList.usdx).balanceOf(address(bond)));
         vm.prank(alice);
-        bond.initialize(tokenList.usdx, alice, bob, 1e6, address(yps));
+        bond.initialize(tokenList.usdx, alice, bob, user1Initial, address(yps));
         console.log("allowance bond-yps", IERC20(tokenList.usdx).allowance(address(bond), address(yps)));
         console.log("Bond contract balance:", IERC20(tokenList.usdx).balanceOf(address(bond)));
         console.log("Alice balance:", IERC20(tokenList.usdx).balanceOf(alice));
         console.log("yps balance:", IERC20(tokenList.usdx).balanceOf(address(yps)));
     }
 
-    // function test_initialization() public view {
-    //     assertEq(bond.owner(), owner);
-    //     (, address _user1, address _user2, uint256 _totalBondAmount, , bool _isBroken, bool _isWithdrawn, bool _isActive, bool _isFreezed) = bond.bond();
-    //     assertEq(_user1, user1);
-    //     assertEq(_user2, user2);
-    //     assertEq(_totalBondAmount, user1Initial);
-    //     assertEq(_isBroken, false);
-    //     assertEq(_isWithdrawn, false);
-    //     assertEq(_isActive, true);
-    //     assertEq(_isFreezed, false);
-    // }
+    function test_initialization() public view {
+        assertEq(bond.owner(), alice);
+        (, address _user1, address _user2, uint256 _totalBondAmount, , bool _isBroken, bool _isWithdrawn, bool _isActive, bool _isFreezed) = bond.bond();
+        assertEq(_user1, alice);
+        assertEq(_user2, bob);
+        assertEq(_totalBondAmount, user1Initial);
+        assertEq(_isBroken, false);
+        assertEq(_isWithdrawn, false);
+        assertEq(_isActive, true);
+        assertEq(_isFreezed, false);
+        assertEq(bond.individualAmount(alice), user1Initial);
+        assertEq(bond.individualPercentage(alice), 100);
+        assertEq(bond.isUser(alice), true);
+        assertEq(bond.isUser(bob), true);
+        assertEq(bond.individualAmount(bob), 0);
+        assertEq(bond.individualPercentage(bob), 0);
+    }
 
-    function test_firstSupply() public {
-        uint256 supplyAmount = 0.2e8;
-        uint256 underlyingBalanceBefore = IERC20(tokenList.wbtc).balanceOf(alice);
+    function testFuzz_stake() public {
+    }
 
-        // vm.expectEmit(report.poolProxy);
-        // emit ReserveUsedAsCollateralEnabled(tokenList.wbtc, alice);
-        // vm.expectEmit(report.poolProxy);
-        // emit Supply(tokenList.wbtc, alice, alice, supplyAmount, 0);
+    function testFuzz_withdraw() public {
+    }
 
-        vm.prank(alice);
-        contracts.poolProxy.supply(tokenList.wbtc, supplyAmount, alice, 0);
-
-        assertEq(IERC20(tokenList.wbtc).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
-        assertEq(IAToken(aWBTC).scaledBalanceOf(alice), supplyAmount);
+    function testFuzz_collectYield() public {
     }
 }

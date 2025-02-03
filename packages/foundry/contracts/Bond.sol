@@ -57,12 +57,9 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         individualPercentage[_user1] = 100;
         isUser[_user1] = true;
         isUser[_user2] = true;
-        yps = IYieldProviderService(_yieldProviderServiceAddress);
-        // Transfer tokens from `alice` to the Bond contract
-        // IERC20(_asset).transferFrom(_user1, address(this), _user1Amount);
+        yps = IYieldProviderService(_yieldProviderServiceAddress); 
         bool success = IERC20(_asset).transferFrom(_user1, address(this), _user1Amount);
         bool success2 = IERC20(_asset).approve(address(yps), _user1Amount);
-        bool success3 = IERC20(_asset).transfer(address(yps), _user1Amount);
         yps.stake(_asset, address(this), _user1Amount);
 
         emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
@@ -79,16 +76,12 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         _onlyUser();
         //always the token In should be same as the bond asset
         //seems like the above comment no need to be, if we settle in eth and stake in any coin...
-        individualAmount[stakingBy] = _amount;
+        individualAmount[stakingBy] += _amount;
         bond.totalBondAmount += _amount;
         individualPercentage[bond.user1] = (individualAmount[bond.user1] * MAX_BPS) / bond.totalBondAmount;
         individualPercentage[bond.user2] = (individualAmount[bond.user2] * MAX_BPS) / bond.totalBondAmount;
-
-        // IERC20(_asset).approve(address(bob), _amount);
-        bool success = IERC20(_asset).transferFrom(stakingBy, address(yps), _amount);
-        // bool success2 = IERC20(_asset).approve(address(yps), _amount);
-        // bool success3 = IERC20(_asset).transfer(address(yps), _amount);
-
+        bool success = IERC20(_asset).transferFrom(stakingBy, address(this), _amount);
+        bool success2 = IERC20(_asset).approve(address(yps), _amount);
         yps.stake(_asset, address(this), _amount);
         return bond;
     }

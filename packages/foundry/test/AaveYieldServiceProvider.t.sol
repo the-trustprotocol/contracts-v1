@@ -11,11 +11,15 @@ import {console} from "forge-std/console.sol";
 import {IAToken} from "@aave-v3-origin/src/contracts/interfaces/IAToken.sol";
 contract AaveYieldServiceProvider is TestnetProcedures {
     address internal aUSDX;
-    address owner = makeAddr("owner");
+    address public owner = makeAddr("owner");
     address internal aavePoolAddress;
     YieldProviderService public impl;
     ERC1967Proxy public proxy;
     YieldProviderService public yieldProviderService;
+
+    address public alicee = alice;
+    address public bobb = bob;
+    address public usdxx = tokenList.usdx;
 
     function setUp() public {
         initTestEnvironment();

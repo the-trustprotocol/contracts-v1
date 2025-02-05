@@ -18,7 +18,7 @@ contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
     }
 
     function initialize(address _bondImplementation) external initializer {
-        // __Ownable_init(msg.sender);
+        __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         implementation = _bondImplementation;
     }

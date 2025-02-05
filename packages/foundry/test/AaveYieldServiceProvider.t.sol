@@ -33,7 +33,7 @@ contract AaveYieldServiceProvider is TestnetProcedures {
        
         vm.prank(alice);
         IERC20(tokenList.usdx).approve(address(yieldProviderService), supplyAmount);
-        yieldProviderService.stake(tokenList.usdx, alice, supplyAmount);
+        yieldProviderService.stake(alice, supplyAmount);
         assertEq(IERC20(tokenList.usdx).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
        
         assertEq(IAToken(aUSDX).scaledBalanceOf(alice), supplyAmount);

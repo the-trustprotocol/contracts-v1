@@ -47,7 +47,7 @@ contract BondTest is TestnetProcedures {
         yps = new YieldProviderService();
         ypsProxy = new ERC1967Proxy(address(yps), "");
         yps = YieldProviderService(address(ypsProxy));
-        yps.initialize(address(contracts.poolProxy), address(aUSDX));
+        yps.initialize(address(contracts.poolProxy), address(aUSDX),address(tokenList.usdx));
         vm.prank(alice);
         assertEq(IERC20(tokenList.usdx).balanceOf(alice), 100_000e6);
         vm.prank(alice);

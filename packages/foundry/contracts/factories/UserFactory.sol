@@ -48,7 +48,8 @@ contract UserFactory is IUserFactory, IUserFactorySwapables, Ownable2StepUpgrade
     return userAddress;
   }
 
-  function createUserGasless(address user) public payable override returns (address) {
+  function createUserOnBehalf(address user) public payable override returns (address) {
+    settings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);
     IUser userContract = new User(address(identityRegistry), address(userSettings));
     address userAddress = address(userContract);
     registry.setUserContract(user, userAddress);

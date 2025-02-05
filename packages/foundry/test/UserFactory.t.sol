@@ -121,5 +121,28 @@ contract UserFactoryTest is Test {
     vm.stopPrank();
   }
 
+  function test_createGaslessUserWithTokenFees() public {
+    vm.startPrank(owner);
+    vm.deal(owner, 1 ether);
+    uint256 percentage = 100;
+    uint256 feeSent = 1 ether;
+    uint256 totalFee = 0.5 ether;
+    bytes4 functionBytes = IFeeSettings(address(settings)).getFunctionSelector("createUserOnBehalf(address)");
+    settings.registerFunctionFees(functionBytes,  totalFee ,percentage, address(0), treasury);
+    vm.stopPrank();
+    address gasFeePayer = makeAddr("gasFeePayer");
+   
+    vm.startPrank(gasFeePayer);
+    vm.deal(gasFeePayer,feeSent);
+    console.log("gasFeePayer.balance",gasFeePayer.balance);
+    address user = userFactory.createUserOnBehalf{ value:feeSent }(owner);
+    console.log("gasFeePayer.balance 2",gasFeePayer.balance);
+    assertEq(user, registry.addressToUserContracts(owner));
+    uint256 expectedFee = ((feeSent  * percentage) / 1000) + totalFee;
+    assertEq(treasury.balance,expectedFee);
+    assertEq(gasFeePayer.balance,feeSent - expectedFee);
+    vm.stopPrank();
+  }
+
 
 }

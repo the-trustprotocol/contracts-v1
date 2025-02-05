@@ -51,7 +51,6 @@ contract UserFactoryTest is Test {
     userSettings = UserSettings(address(userSettingsProxy));
 
 
-
     registryImpl = new Registry();
     registryProxy = new ERC1967Proxy(address(registryImpl), "");
     registry = Registry(address(registryProxy));

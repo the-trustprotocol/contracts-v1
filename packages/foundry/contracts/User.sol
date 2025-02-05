@@ -75,11 +75,4 @@ contract User is IUser {
         verifiedIdentities[identityTag] = verified;
         return verified;
     }
-
-    // function createBond(
-    //     IBond.BondDetails memory _bond,
-    //     address _aavePoolAddress,
-    //     address _uiPoolDataAddress,
-    //     address _ypsFactoryAddress
-    // ) external override returns (bool) { }  // why created a new function here...........
 }

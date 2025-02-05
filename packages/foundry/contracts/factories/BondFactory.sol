@@ -29,7 +29,7 @@ contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         address _user2,
         uint256 _totalAmount,
         address _yieldProviderServiceAddress
-    ) external override onlyOwner returns (address) {
+    ) external override  returns (address) {
         address newBond = implementation.clone();
 
         Bond(newBond).initialize(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress);

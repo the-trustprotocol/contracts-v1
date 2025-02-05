@@ -35,6 +35,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         uint256 _user1Amount,
         address _yieldProviderServiceAddress
     ) external initializer {
+        //if we have _onlyUser() seems like we dont even need this.......
         __Ownable_init(msg.sender); // it should be role based access control, will change it to that
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
@@ -86,22 +87,22 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         return bond;
     }
 
-    function withdrawBond(address _asset, address _to, address _aAsset) external override nonReentrant returns (BondDetails memory) {
+    function withdrawBond(address _asset, address _user, address _aAsset) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
         _freezed();
         _calcYield(_aAsset);
-        uint256 withdrawable = individualAmount[_to] + claimableYield[_to];
-        individualAmount[_to] = 0;
+        uint256 withdrawable = individualAmount[_user] + claimableYield[_user];
+        individualAmount[_user] = 0;
         bond.isWithdrawn = true;
         // bond.isActive = false;
         IERC20(_aAsset).transfer(address(yps), withdrawable);
-        yps.withdraw(_asset, _to, withdrawable);
+        yps.withdraw(_asset, _user, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
 
-    function breakBond(address _asset, address _to, address _aAsset) external override nonReentrant returns (BondDetails memory) {
+    function breakBond(address _asset, address _user, address _aAsset) external override nonReentrant returns (BondDetails memory) {
         _onlyActive();
         _onlyUser();
         _freezed();
@@ -118,15 +119,15 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         return bond;
     }
 
-    function collectYield(address _aAsset) external override {
+    function collectYield(address _aAsset, address _user) external override {
         _onlyActive();
         _onlyUser();
         _freezed();
         _calcYield(_aAsset);
-        if (claimableYield[msg.sender] == 0) revert NothingToClaim();
-        uint256 userClaimableYield = claimableYield[msg.sender];
-        claimableYield[msg.sender] = 0;
-        yps.withdraw(bond.asset, msg.sender, userClaimableYield);
+        uint256 userClaimableYield = claimableYield[_user];
+        if (userClaimableYield == 0) revert NothingToClaim();
+        claimableYield[_user] = 0;
+        yps.withdrawBond(bond.asset, _user, userClaimableYield);
     }
 
     function requestForCollateral() external override {

@@ -34,6 +34,8 @@ contract YieldProviderService is
   }
 
   function withdraw(address _user, uint256 _amount) external override nonReentrant {
+    IERC20(_yieldToken).transferFrom(_user, address(this), _amount);
+    IERC20(_yieldToken).approve(address(pool), _amount);
     pool.withdraw(_depositToken, _amount, _user);
   }
 

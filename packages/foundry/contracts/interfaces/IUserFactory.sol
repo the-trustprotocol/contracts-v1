@@ -8,4 +8,6 @@ interface IUserFactory {
 
 
     function attestationManager() external view returns (address);
+
+    function createUserGasless(address user) external payable returns (address);
 }

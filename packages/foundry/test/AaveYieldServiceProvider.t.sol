@@ -17,17 +17,14 @@ contract AaveYieldServiceProvider is TestnetProcedures {
     ERC1967Proxy public proxy;
     YieldProviderService public yieldProviderService;
 
-    address public alicee = alice;
-    address public bobb = bob;
-    address public usdxx = tokenList.usdx;
-
+  
     function setUp() public {
         initTestEnvironment();
         (aUSDX, , ) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.usdx);
         aavePoolAddress = address(contracts.poolProxy);
         impl = new YieldProviderService();
         vm.prank(owner);
-        proxy = new ERC1967Proxy(address(impl), abi.encodeCall(YieldProviderService.initialize, (aavePoolAddress, aUSDX)));
+        proxy = new ERC1967Proxy(address(impl), abi.encodeCall(YieldProviderService.initialize, (aavePoolAddress, aUSDX,tokenList.usdx)));
         yieldProviderService = YieldProviderService(address(proxy));
     }
     function test_stake() public {
@@ -47,11 +44,11 @@ contract AaveYieldServiceProvider is TestnetProcedures {
         vm.startPrank(alice);
        
         IERC20(tokenList.usdx).approve(address(yieldProviderService), supplyAmount); 
-        yieldProviderService.stake(tokenList.usdx, alice,supplyAmount);
+        yieldProviderService.stake(alice,supplyAmount);
         vm.warp(block.timestamp + 10000 days);
         uint256 amountToWithdraw = IAToken(aUSDX).balanceOf(alice);
         uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(alice);
-        yieldProviderService.withdrawBond(_assetAddress, _user, _amount);
+        yieldProviderService.withdraw(alice, amountToWithdraw);
         vm.stopPrank();
         console.log("withdraw balance amount",IERC20(tokenList.usdx).balanceOf(alice));
         assertEq(IERC20(tokenList.usdx).balanceOf(alice), balanceBefore + amountToWithdraw);

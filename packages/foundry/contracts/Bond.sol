@@ -61,7 +61,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         yps = IYieldProviderService(_yieldProviderServiceAddress); 
         bool success = IERC20(_asset).transferFrom(_user1, address(this), _user1Amount);
         bool success2 = IERC20(_asset).approve(address(yps), _user1Amount);
-        yps.stake(_asset, address(this), _user1Amount);
+        yps.stake(address(this), _user1Amount);
 
         emit BondCreated(address(this), _user1, _user2, totalBondAmount, block.timestamp);
     }
@@ -83,7 +83,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         individualPercentage[bond.user2] = (individualAmount[bond.user2] * MAX_BPS) / bond.totalBondAmount;
         bool success = IERC20(_asset).transferFrom(user, address(this), _amount);
         bool success2 = IERC20(_asset).approve(address(yps), _amount);
-        yps.stake(_asset, address(this), _amount);
+        yps.stake(address(this), _amount);
         return bond;
     }
 
@@ -97,7 +97,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         bond.isWithdrawn = true;
         // bond.isActive = false;
         IERC20(_aAsset).transfer(address(yps), withdrawable);
-        yps.withdraw(_asset, _user, withdrawable);
+        yps.withdraw(_user, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
@@ -114,7 +114,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         // uint256 withdrawable = claimableYield[bond.user1] + claimableYield[bond.user2] + bond.totalBondAmount;
         uint256 withdrawable = IERC20(_aAsset).balanceOf(address(this));
         IERC20(_aAsset).transfer(address(yps), withdrawable);
-        yps.withdraw(_asset, _to, withdrawable);
+        yps.withdraw(_asset, withdrawable);
         emit BondBroken(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
@@ -127,7 +127,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         uint256 userClaimableYield = claimableYield[_user];
         if (userClaimableYield == 0) revert NothingToClaim();
         claimableYield[_user] = 0;
-        yps.withdrawBond(bond.asset, _user, userClaimableYield);
+        yps.withdraw(_user, userClaimableYield);
     }
 
     function requestForCollateral() external override {

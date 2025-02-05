@@ -27,16 +27,32 @@ contract AaveYieldServiceProvider is TestnetProcedures {
         yieldProviderService = YieldProviderService(address(proxy));
     }
     function test_stake() public {
-
         uint256 supplyAmount = 100000000000;
         uint256 underlyingBalanceBefore = IERC20(tokenList.usdx).balanceOf(alice);
-        console.log("underlyingBalanceBefore", underlyingBalanceBefore);
+       
         vm.prank(alice);
         IERC20(tokenList.usdx).approve(address(yieldProviderService), supplyAmount);
         yieldProviderService.stake(tokenList.usdx, alice, supplyAmount);
         assertEq(IERC20(tokenList.usdx).balanceOf(alice), underlyingBalanceBefore - supplyAmount);
+       
         assertEq(IAToken(aUSDX).scaledBalanceOf(alice), supplyAmount);
-        
-        // yieldProviderService.stake(aUSDX, owner, 100);
     }
+
+    function test_withdraw() public {
+        uint256 supplyAmount = 100000000000;
+        vm.startPrank(alice);
+       
+        IERC20(tokenList.usdx).approve(address(yieldProviderService), supplyAmount); 
+        yieldProviderService.stake(tokenList.usdx, alice,supplyAmount);
+        vm.warp(block.timestamp + 10000 days);
+        uint256 amountToWithdraw = IAToken(aUSDX).balanceOf(alice);
+        uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(alice);
+        yieldProviderService.withdrawBond(_assetAddress, _user, _amount);
+        vm.stopPrank();
+        console.log("withdraw balance amount",IERC20(tokenList.usdx).balanceOf(alice));
+        assertEq(IERC20(tokenList.usdx).balanceOf(alice), balanceBefore + amountToWithdraw);
+        assertEq(IAToken(aUSDX).balanceOf(alice), 0);
+       
+    }
+    
 }

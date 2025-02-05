@@ -96,7 +96,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         bond.isWithdrawn = true;
         // bond.isActive = false;
         IERC20(_aAsset).transfer(address(yps), withdrawable);
-        yps.withdrawBond(_asset, _to, withdrawable);
+        yps.withdraw(_asset, _to, withdrawable);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
@@ -113,7 +113,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         // uint256 withdrawable = claimableYield[bond.user1] + claimableYield[bond.user2] + bond.totalBondAmount;
         uint256 withdrawable = IERC20(_aAsset).balanceOf(address(this));
         IERC20(_aAsset).transfer(address(yps), withdrawable);
-        yps.withdrawBond(_asset, _to, withdrawable);
+        yps.withdraw(_asset, _to, withdrawable);
         emit BondBroken(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);
         return bond;
     }
@@ -126,7 +126,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         if (claimableYield[msg.sender] == 0) revert NothingToClaim();
         uint256 userClaimableYield = claimableYield[msg.sender];
         claimableYield[msg.sender] = 0;
-        yps.withdrawBond(bond.asset, msg.sender, userClaimableYield);
+        yps.withdraw(bond.asset, msg.sender, userClaimableYield);
     }
 
     function requestForCollateral() external override {

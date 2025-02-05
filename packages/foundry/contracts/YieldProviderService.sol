@@ -17,22 +17,21 @@ contract YieldProviderService is
     ReentrancyGuardUpgradeable
 {
     IPool public pool;
-    address private aToken;
+    address public yToken;
 
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address poolAddress, address aTokenAddress) external initializer {
-        __Ownable_init(msg.sender); // msg.sender is the bond contract, so bond contract will be the owner
+    function initialize(address poolAddress, address yieldBearingToken) external initializer {
+        __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
-
         pool = IPool(poolAddress);
-        aToken = aTokenAddress;
+        yToken = yToken;
     }
 
-    function withdrawBond(address _assetAddress, address _user, uint256 _amount) external override nonReentrant {
+    function withdraw(address _assetAddress, address _user, uint256 _amount) external override nonReentrant {
         pool.withdraw(_assetAddress, _amount, _user);
     }
 
@@ -40,15 +39,6 @@ contract YieldProviderService is
         IERC20(_assetAddress).transferFrom(_user, address(this), _amount);
         IERC20(_assetAddress).approve(address(pool), _amount);
         pool.supply(_assetAddress, _amount, _user, 0);
-    }
-
-    function collectYield(address _assetAddress, uint256 _amount, address _user) external override nonReentrant {
-        pool.withdraw(_assetAddress, _amount, _user);
-    }
-
-    function getAToken() external view override returns (address) {
-        return aToken;
-    }
-
+    }  
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

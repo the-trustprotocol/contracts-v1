@@ -56,7 +56,7 @@ contract User is IUser {
 
         IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
         address newBond = bondFactory.createBond(
-            _bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, _yieldProviderServiceAddress
+            _bond.asset, _bond.user1, _bond.user2,_yieldProviderServiceAddress
         );
 
         bondDetails[newBond] = _bond;

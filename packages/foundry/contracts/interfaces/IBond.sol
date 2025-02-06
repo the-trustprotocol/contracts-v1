@@ -71,11 +71,11 @@ interface IBond {
     ----------FUNCTIONS----------
     --------------------------
     */
-    function stake(address _asset, address stakingBy, uint256 _amount) external returns (BondDetails memory);
-    function withdrawBond(address _asset, address to, address _aAsset) external returns (BondDetails memory);
-    function breakBond(address _asset, address _to, address _aAsset) external returns (BondDetails memory);
+    function stake(address stakingBy, uint256 _amount) external returns (BondDetails memory);
+    function withdraw(address to) external returns (BondDetails memory);
+    function breakBond(address _to) external returns (BondDetails memory);
     function requestForCollateral() external;
     function acceptForCollateral() external;
-    function unfreezeBond() external;
+    function unfreeze() external;
     function collectYield(address _aAsset, address _user) external;
 }

@@ -9,7 +9,8 @@ interface IYieldProviderService {
 
     function withdraw(
         address _user, 
-        uint256 _amount
+        uint256 _amount,
+        address _to
     ) external;
 
     function depositToken() external view returns (address);

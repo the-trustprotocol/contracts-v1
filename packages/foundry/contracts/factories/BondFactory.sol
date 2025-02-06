@@ -23,19 +23,15 @@ contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         __UUPSUpgradeable_init();
     }
 
+
     function createBond(
         address _asset,
         address _user1,
         address _user2,
-        uint256 _totalAmount,
         address _yieldProviderServiceAddress
     ) external override  returns (address) {
-        // address newBond = implementation.clone();
-
-        address newBond = address(new Bond(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress));
-        // IERC20(_asset).transferFrom(_user1, newBond, _totalAmount); 
-        // Bond(newBond).initialize(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress);
-        return newBond;
+        Bond bond = new Bond(_asset, _user1, _user2,_yieldProviderServiceAddress);    
+        return address(bond);
     }
 
     // function updateImplementation(address _newImplementation) external onlyOwner {

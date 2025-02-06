@@ -55,7 +55,7 @@ contract AaveYieldServiceProvider is TestnetProcedures {
     uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(alice);
 
     IAToken(aUSDX).approve(address(yieldProviderService), amountToWithdraw);
-    yieldProviderService.withdraw(alice, amountToWithdraw);
+    yieldProviderService.withdraw(alice, amountToWithdraw,alice);
     vm.stopPrank();
 
     assertEq(IERC20(tokenList.usdx).balanceOf(alice), balanceBefore + amountToWithdraw);

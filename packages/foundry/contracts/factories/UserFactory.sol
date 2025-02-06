@@ -41,12 +41,28 @@ contract UserFactory is IUserFactory, IUserFactorySwapables, Ownable2StepUpgrade
     // Collect fees
     settings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);
 
-    IUser user = new User(address(identityRegistry), address(userSettings));
-    address userAddress = address(user);
-    registry.setUserContract(msg.sender, userAddress);
-    emit UserCreated(msg.sender, userAddress);
-    return userAddress;
+    if(registry.addressToUserContracts(msg.sender) == address(0)){
+      IUser user = new User(address(identityRegistry), address(userSettings));
+      address userAddress = address(user);
+      registry.setUserContract(msg.sender, userAddress);
+      emit UserCreated(msg.sender, userAddress);
+      return userAddress;
+    }
+    return registry.addressToUserContracts(msg.sender);
   }
+
+  // function createUserWithBond(address user1,address user2,uint256 initialAmount) public payable returns (address){
+  //   bool user1Exists = registry.addressToUserContracts(user1) != address(0);
+  //   bool user2Exists = registry.addressToUserContracts(user2) != address(0);
+  //   if(!user1Exists){
+  //     createUserOnBehalf(user1);
+  //   }
+  //   if(!user2Exists){
+  //     createUserOnBehalf(user2);
+  //   }
+
+
+  // }
 
   function createUserOnBehalf(address user) public payable override returns (address) {
     settings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);

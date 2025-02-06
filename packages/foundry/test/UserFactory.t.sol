@@ -36,6 +36,8 @@ contract UserFactoryTest is Test {
   ERC1967Proxy public registryProxy;
   Registry public registry;
 
+
+
   function setUp() public {
     vm.startPrank(owner);
 
@@ -68,6 +70,10 @@ contract UserFactoryTest is Test {
     userFactory = UserFactory(address(proxy));
     registry.addTrustedUpdater(address(userFactory));
     vm.stopPrank();
+
+   
+
+
   }
 
   function test_createUserWithoutFees() public {
@@ -143,6 +149,9 @@ contract UserFactoryTest is Test {
     assertEq(gasFeePayer.balance,feeSent - expectedFee);
     vm.stopPrank();
   }
+
+
+  
 
 
 }

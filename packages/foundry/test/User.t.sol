@@ -77,9 +77,7 @@ contract UserTest is TestnetProcedures {
         console.log("this address", address(this));
         console.log("yps address", address(aaveYieldServiceProvider));
         userImpl = new User(address(identityRegistryImpl), address(feeSettingsImpl));
-        // userProxy = new ERC1967Proxy(address(userImpl), "");
-        // user = User(address(userProxy));
-
+        
         vm.stopPrank();
 
     }
@@ -92,41 +90,21 @@ contract UserTest is TestnetProcedures {
         vm.startPrank(alice);
         IERC20(tokenList.usdx).approve(address(userImpl), 1000);
         IERC20(tokenList.usdx).approve(address(bondFactoryImpl), 1000);
-        // userImpl.createBond(
-        //         IBond.BondDetails({
-        //             asset: tokenList.usdx,
-        //             user1: alice,
-        //             user2: bob,
-        //             totalBondAmount: 1000,
-        //             createdAt: block.timestamp,
-        //             isBroken: false,
-        //             isWithdrawn: false,
-        //             isActive: true,
-        //             isFreezed: false            
-        //         }),
-        //         address(bondFactoryImpl),
-        //         address(ypsAddress)
-        // );
-        // bondAddress = address(userImpl.createBond(
-        //         IBond.BondDetails({
-        //             asset: address(0),
-        //             user1: address(0),
-        //             user2: address(0),
-        //             totalBondAmount: 0,
-        //             createdAt: block.timestamp,
-        //             isBroken: false,
-        //             isWithdrawn: false,
-        //             isActive: true,
-        //             isFreezed: false            
-        //         }),
-        //         address(bondFactoryImpl),
-        //         address(ypsAddress)
-        //     ));
-
+        userImpl.createBond(
+                IBond.BondDetails({
+                    asset: tokenList.usdx,
+                    user1: alice,
+                    user2: bob,
+                    totalBondAmount: 1000,
+                    createdAt: block.timestamp,
+                    isBroken: false,
+                    isWithdrawn: false,
+                    isActive: true,
+                    isFreezed: false            
+                }),
+                address(bondFactoryImpl),
+                address(ypsAddress)
+        );
         vm.stopPrank();
-    }
-
-    // function test_getBond() public {
-    //     user.getBondDetails(bondAddress);
-    // }
+    } 
 }

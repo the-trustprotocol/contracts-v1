@@ -14,7 +14,9 @@ import { IFeeSettings } from "./interfaces/IFeeSettings.sol";
 
 contract User is IUser {
     mapping(address => IBond.BondDetails) private bondDetails;
+    address[] allBonds;
     mapping(string => bool) private verifiedIdentities;
+
 
     UserDetails public user;
 
@@ -67,7 +69,6 @@ contract User is IUser {
     function getBondDetails(address _bondAddress) external view returns (IBond.BondDetails memory) {
         return bondDetails[_bondAddress];
     }
-
     function verifyIdentity(string calldata identityTag, bytes calldata data) external returns (bool) {
         address resolver = identityRegistry.getResolver(identityTag);
         if (resolver == address(0)) revert ResolverNotFound();

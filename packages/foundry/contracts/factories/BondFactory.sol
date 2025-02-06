@@ -6,6 +6,7 @@ import { IBondFactory } from "../interfaces/IBondFactory.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
     using Clones for address;
@@ -31,7 +32,7 @@ contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         address _yieldProviderServiceAddress
     ) external override  returns (address) {
         address newBond = implementation.clone();
-
+        IERC20(_asset).transferFrom(_user1, newBond, _totalAmount); 
         Bond(newBond).initialize(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress);
         return newBond;
     }

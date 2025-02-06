@@ -59,7 +59,7 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         isUser[_user1] = true;
         isUser[_user2] = true;
         yps = IYieldProviderService(_yieldProviderServiceAddress); 
-        bool success = IERC20(_asset).transferFrom(_user1, address(this), _user1Amount);
+        // bool success = IERC20(_asset).transferFrom(_user1, address(this), _user1Amount);
         bool success2 = IERC20(_asset).approve(address(yps), _user1Amount);
         yps.stake(address(this), _user1Amount);
 

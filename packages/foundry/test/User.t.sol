@@ -36,8 +36,6 @@ contract UserTest is TestnetProcedures {
     BondFactory public bondFactoryImpl;
     ERC1967Proxy public bondFactoryProxy;
 
-    Bond public bondImpl;
-
     AaveYieldServiceProvider public aaveYieldServiceProvider;
 
     address public owner;
@@ -67,12 +65,10 @@ contract UserTest is TestnetProcedures {
 
         feeSettingsImpl = new FeeSettings();
 
-        bondImpl = new Bond();
-
         bondFactoryImpl = new BondFactory();
         bondFactoryProxy = new ERC1967Proxy(address(bondFactoryImpl), "");
         bondFactoryImpl = BondFactory(address(bondFactoryProxy));
-        bondFactoryImpl.initialize(address(bondImpl));
+        bondFactoryImpl.initialize();
 
 
         console.log("bondFactoryImpl", address(bondFactoryImpl));
@@ -96,21 +92,21 @@ contract UserTest is TestnetProcedures {
         vm.startPrank(alice);
         IERC20(tokenList.usdx).approve(address(userImpl), 1000);
         IERC20(tokenList.usdx).approve(address(bondFactoryImpl), 1000);
-        userImpl.createBond(
-                IBond.BondDetails({
-                    asset: tokenList.usdx,
-                    user1: alice,
-                    user2: bob,
-                    totalBondAmount: 1000,
-                    createdAt: block.timestamp,
-                    isBroken: false,
-                    isWithdrawn: false,
-                    isActive: true,
-                    isFreezed: false            
-                }),
-                address(bondFactoryImpl),
-                address(ypsAddress)
-        );
+        // userImpl.createBond(
+        //         IBond.BondDetails({
+        //             asset: tokenList.usdx,
+        //             user1: alice,
+        //             user2: bob,
+        //             totalBondAmount: 1000,
+        //             createdAt: block.timestamp,
+        //             isBroken: false,
+        //             isWithdrawn: false,
+        //             isActive: true,
+        //             isFreezed: false            
+        //         }),
+        //         address(bondFactoryImpl),
+        //         address(ypsAddress)
+        // );
         // bondAddress = address(userImpl.createBond(
         //         IBond.BondDetails({
         //             asset: address(0),

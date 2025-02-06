@@ -22,7 +22,7 @@ import {IAToken} from "@aave-v3-origin/src/contracts/interfaces/IAToken.sol";
 
 
 contract BondTest is TestnetProcedures {
-    
+
     Bond public bond;
 
     address internal aUSDX;
@@ -32,7 +32,6 @@ contract BondTest is TestnetProcedures {
     ERC1967Proxy public bondFactoryProxy;
 
     uint256 stakeAmount = 100_000e6; 
-    ERC1967Proxy public bondProxy;
     ERC1967Proxy public ypsProxy;
     ERC1967Proxy public ypsFactoryProxy;
     YieldProviderService public yps;
@@ -49,11 +48,7 @@ contract BondTest is TestnetProcedures {
         bondFactoryProxy = new ERC1967Proxy(address(bondFactory), "");
         bondFactory = BondFactory(address(bondFactoryProxy));
 
-        bond = new Bond();
-        bondProxy = new ERC1967Proxy(address(bond), "");
-        bond = Bond(address(bondProxy));
-
-        bondFactory.initialize(address(bond));
+        bondFactory.initialize();
 
         yps = new YieldProviderService();
         ypsProxy = new ERC1967Proxy(address(yps), "");
@@ -69,8 +64,7 @@ contract BondTest is TestnetProcedures {
     }
 
     function test_initialization() public view {
-        // console.log(bond);
-        // assertEq(bond.owner(), alice);
+        assertEq(bond.owner(), alice);
         (, address _user1, address _user2, uint256 _totalBondAmount, , bool _isBroken, bool _isWithdrawn, bool _isActive, bool _isFreezed) = bond.bond();
         assertEq(_user1, alice);
         assertEq(_user2, bob);

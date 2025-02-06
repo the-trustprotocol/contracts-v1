@@ -11,21 +11,16 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 contract BondFactoryTest is Test{
 
     Bond public bond;
-    ERC1967Proxy public bondProxy;
 
     BondFactory public bondFactory;
     ERC1967Proxy public bondFactoryProxy;
 
     function setUp() public {
 
-        bond = new Bond();
-        bondProxy = new ERC1967Proxy(address(bond), "");
-        bond = Bond(address(bondProxy));
-
         bondFactory = new BondFactory();
         bondFactoryProxy = new ERC1967Proxy(address(bondFactory), "");
         bondFactory = BondFactory(address(bondFactoryProxy));
-        bondFactory.initialize(address(bond));
+        bondFactory.initialize();
 
     }
 

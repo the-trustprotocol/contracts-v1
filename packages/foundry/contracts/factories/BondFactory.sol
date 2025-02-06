@@ -11,17 +11,16 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
     using Clones for address;
 
-    address public implementation;
+    // address public implementation;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address _bondImplementation) external initializer {
+    function initialize() external initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
-        implementation = _bondImplementation;
     }
 
     function createBond(
@@ -31,15 +30,17 @@ contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         uint256 _totalAmount,
         address _yieldProviderServiceAddress
     ) external override  returns (address) {
-        address newBond = implementation.clone();
-        IERC20(_asset).transferFrom(_user1, newBond, _totalAmount); 
-        Bond(newBond).initialize(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress);
+        // address newBond = implementation.clone();
+
+        address newBond = address(new Bond(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress));
+        // IERC20(_asset).transferFrom(_user1, newBond, _totalAmount); 
+        // Bond(newBond).initialize(_asset, _user1, _user2, _totalAmount, _yieldProviderServiceAddress);
         return newBond;
     }
 
-    function updateImplementation(address _newImplementation) external onlyOwner {
-        implementation = _newImplementation;
-    }
+    // function updateImplementation(address _newImplementation) external onlyOwner {
+    //     implementation = _newImplementation;
+    // }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

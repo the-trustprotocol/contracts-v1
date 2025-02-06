@@ -5,11 +5,12 @@ pragma solidity 0.8.28;
 import { IBond } from "./interfaces/IBond.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
-import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import { Ownable2Step, Ownable } from "@openzeppelin/contracts/access/Ownable2Step.sol";
+// contracts/access/Ownable2Step.sol
+// import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
+contract Bond is IBond, Ownable2Step, ReentrancyGuard {
     address public collateralRequestedBy;
 
     uint256 public constant MAX_BPS = 10000;
@@ -24,21 +25,14 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
 
     BondDetails public bond;
 
-    constructor() {
-        _disableInitializers();
-    }
-
-    function initialize(
+    constructor(
         address _asset,
         address _user1,
         address _user2,
         uint256 _user1Amount,
         address _yieldProviderServiceAddress
-    ) external initializer {
-        //if we have _onlyUser() seems like we dont even need this.......
-        __Ownable_init(msg.sender); // it should be role based access control, will change it to that
-        __ReentrancyGuard_init();
-        __UUPSUpgradeable_init();
+    ) Ownable(msg.sender) {
+
 
         uint256 totalBondAmount = _user1Amount;
 
@@ -184,6 +178,4 @@ contract Bond is IBond, Ownable2StepUpgradeable, UUPSUpgradeable, ReentrancyGuar
         claimableYield[bond.user1] = (individualPercentage[bond.user1] * yield) / MAX_BPS;
         claimableYield[bond.user2] = (individualPercentage[bond.user2] * yield) / MAX_BPS;
     }
-
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }

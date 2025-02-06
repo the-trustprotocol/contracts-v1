@@ -26,6 +26,10 @@ contract AaveYieldServiceProvider is TestnetProcedures {
         vm.prank(owner);
         proxy = new ERC1967Proxy(address(impl), abi.encodeCall(YieldProviderService.initialize, (aavePoolAddress, aUSDX,tokenList.usdx)));
         yieldProviderService = YieldProviderService(address(proxy));
+        assertEq(yieldProviderService.owner(), owner);
+        assertEq(yieldProviderService.yieldToken(), aUSDX);
+        assertEq(yieldProviderService.depositToken(), tokenList.usdx);
+        vm.stopPrank();
     }
     function test_stake() public {
         uint256 supplyAmount = 100000000000;
@@ -40,20 +44,22 @@ contract AaveYieldServiceProvider is TestnetProcedures {
     }
 
     function test_withdraw() public {
-        uint256 supplyAmount = 100000000000;
-        vm.startPrank(alice);
-       
-        IERC20(tokenList.usdx).approve(address(yieldProviderService), supplyAmount); 
-        yieldProviderService.stake(alice,supplyAmount);
-        vm.warp(block.timestamp + 10000 days);
-        uint256 amountToWithdraw = IAToken(aUSDX).balanceOf(alice);
-        uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(alice);
-        yieldProviderService.withdraw(alice, amountToWithdraw);
-        vm.stopPrank();
-        console.log("withdraw balance amount",IERC20(tokenList.usdx).balanceOf(alice));
-        assertEq(IERC20(tokenList.usdx).balanceOf(alice), balanceBefore + amountToWithdraw);
-        assertEq(IAToken(aUSDX).balanceOf(alice), 0);
-       
-    }
+    uint256 amount = 142e6;
+    vm.startPrank(alice);
+    IERC20(tokenList.usdx).approve(address(yieldProviderService), amount);
+    yieldProviderService.stake(alice,amount);
+
+    vm.warp(block.timestamp + 10 days);
+
+    uint256 amountToWithdraw = IAToken(aUSDX).balanceOf(alice);
+    uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(alice);
+
+    IAToken(aUSDX).approve(address(yieldProviderService), amountToWithdraw);
+    yieldProviderService.withdraw(alice, amountToWithdraw);
+    vm.stopPrank();
+
+    assertEq(IERC20(tokenList.usdx).balanceOf(alice), balanceBefore + amountToWithdraw);
+    assertEq(IAToken(aUSDX).balanceOf(alice), 0);
+  }
     
 }

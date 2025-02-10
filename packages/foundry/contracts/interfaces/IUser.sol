@@ -49,5 +49,5 @@ interface IUser {
         IBond.BondDetails memory _bond,
         address _bondFactoryAddress,
         address _yieldProviderServiceAddress
-    ) external payable returns (bool);
+    ) external payable returns (address);
 }

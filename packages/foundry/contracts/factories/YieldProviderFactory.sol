@@ -23,7 +23,7 @@ contract YieldProviderFactory is IYieldProviderServiceFactory, Ownable2StepUpgra
         implementation = _bondImplementation;
     }
 
-    function createYPS(address _aavePoolAddress, address _aToken,address _token) external override returns (address) {
+    function createYPS(address _aavePoolAddress, address _aToken, address _token) external override returns (address) {
         address newYPS = implementation.clone();
 
         YieldProviderService(newYPS).initialize(_aavePoolAddress, _aToken, _token);

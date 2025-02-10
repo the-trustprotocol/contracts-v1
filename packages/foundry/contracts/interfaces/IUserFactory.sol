@@ -6,7 +6,6 @@ interface IUserFactory {
 
     function createUser() external payable returns (address);
 
-
     function attestationManager() external view returns (address);
 
     function createUserOnBehalf(address user) external payable returns (address);

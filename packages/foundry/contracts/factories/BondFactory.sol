@@ -23,14 +23,12 @@ contract BondFactory is IBondFactory, Ownable2StepUpgradeable, UUPSUpgradeable {
         __UUPSUpgradeable_init();
     }
 
-
-    function createBond(
-        address _asset,
-        address _user1,
-        address _user2,
-        address _yieldProviderServiceAddress
-    ) external override  returns (address) {
-        Bond bond = new Bond(_asset, _user1, _user2,_yieldProviderServiceAddress);    
+    function createBond(address _asset, address _user1, address _user2, address _yieldProviderServiceAddress)
+        external
+        override
+        returns (address)
+    {
+        Bond bond = new Bond(_asset, _user1, _user2, _yieldProviderServiceAddress);
         return address(bond);
     }
 

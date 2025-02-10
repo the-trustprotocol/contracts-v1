@@ -53,7 +53,7 @@ contract User is IUser {
         IBond.BondDetails memory _bond,
         address _bondFactoryAddress,
         address _yieldProviderServiceAddress
-    ) external payable override returns (bool) {
+    ) external payable override returns (address) {
         feeSettings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);
 
         IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
@@ -63,12 +63,13 @@ contract User is IUser {
 
         bondDetails[newBond] = _bond;
         emit BondDeployed(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, block.timestamp);
-        return true;
+        return newBond;
     }
 
     function getBondDetails(address _bondAddress) external view returns (IBond.BondDetails memory) {
         return bondDetails[_bondAddress];
     }
+    
     function verifyIdentity(string calldata identityTag, bytes calldata data) external returns (bool) {
         address resolver = identityRegistry.getResolver(identityTag);
         if (resolver == address(0)) revert ResolverNotFound();

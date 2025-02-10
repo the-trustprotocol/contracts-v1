@@ -70,10 +70,6 @@ contract UserFactoryTest is Test {
     userFactory = UserFactory(address(proxy));
     registry.addTrustedUpdater(address(userFactory));
     vm.stopPrank();
-
-   
-
-
   }
 
   function test_createUserWithoutFees() public {
@@ -150,8 +146,5 @@ contract UserFactoryTest is Test {
     vm.stopPrank();
   }
 
-
   
-
-
 }

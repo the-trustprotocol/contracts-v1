@@ -22,6 +22,8 @@ import {AaveYieldServiceProvider} from "./AaveYieldServiceProvider.t.sol";
 import {TestnetProcedures} from "@aave-v3-origin/tests/utils/TestnetProcedures.sol";
 import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
+import {VerifyIfTrue} from "../contracts/identity-resolvers/VerifyIfTrue.sol";
+
 contract UserTest is TestnetProcedures {
 
     IdentityRegistry public identityRegistryImpl;
@@ -90,7 +92,7 @@ contract UserTest is TestnetProcedures {
         vm.startPrank(alice);
         IERC20(tokenList.usdx).approve(address(userImpl), 1000);
         IERC20(tokenList.usdx).approve(address(bondFactoryImpl), 1000);
-        userImpl.createBond(
+        bondAddress = userImpl.createBond(
                 IBond.BondDetails({
                     asset: tokenList.usdx,
                     user1: alice,
@@ -107,4 +109,30 @@ contract UserTest is TestnetProcedures {
         );
         vm.stopPrank();
     } 
+
+    function test_getBondDetails() public {
+
+        test_createBond();
+
+        IBond.BondDetails memory bondDetails = userImpl.getBondDetails(bondAddress);
+        assertEq(bondDetails.totalBondAmount, 1000);
+        assertEq(bondDetails.user1, alice);
+        assertEq(bondDetails.user2, bob);
+        assertEq(bondDetails.asset, tokenList.usdx);
+    }
+
+    function test_verifyIdentity() public {
+        vm.startPrank(owner);
+        console.log("address", address(new VerifyIfTrue()));
+        address resolver = address(new VerifyIfTrue());
+        console.log("resolver", resolver);
+        VerifyIfTrue.VerificationData memory verificationData = VerifyIfTrue.VerificationData({ shouldVerify: true });
+        bytes memory data = abi.encode(verificationData);
+        console.logBytes(data);
+        identityRegistryImpl.setResolver("activeIfTrue", resolver);
+        assertEq(resolver, identityRegistryImpl.getResolver("activeIfTrue"), "Resolver not set");
+        bool verified = userImpl.verifyIdentity("activeIfTrue", data);
+        assertTrue(verified, "Identity not verified");
+        vm.stopPrank();
+    }
 }

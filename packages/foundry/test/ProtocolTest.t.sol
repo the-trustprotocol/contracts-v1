@@ -104,7 +104,4 @@ contract ProtocolTest is TestnetProcedures {
     assertEq(owner.balance,feeSent - expectedFee);
     vm.stopPrank();
   }
-
-
-
 }

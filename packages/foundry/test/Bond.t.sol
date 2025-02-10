@@ -164,41 +164,41 @@ contract BondTest is TestnetProcedures {
         assertFalse(_isActive);
     }
 
-    // function testFuzz_collectYield(uint256 _stakeAmount) public {
-    //     testFuzz_stake(_stakeAmount);
+    function testFuzz_collectYield(uint256 _stakeAmount) public {
+        testFuzz_stake(_stakeAmount);
 
-    //     vm.warp(block.timestamp + 100000 days); //somehow its not increasing yield
+        vm.warp(block.timestamp + 100000 days); //somehow its not increasing yield
 
-    //     uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(bob);
+        uint256 balanceBefore = IERC20(tokenList.usdx).balanceOf(bob);
 
-    //     (, , ,uint256 _totalBondAmount , , , , , ) = bond.bond();
-    //     console.log(IERC20(aUSDX).balanceOf(address(bond)) - _totalBondAmount);
+        (, , ,uint256 _totalBondAmount , , , , , ) = bond.bond();
+        console.log(IERC20(aUSDX).balanceOf(address(bond)) - _totalBondAmount);
 
-    //     uint256 balanceInBondBefore = IERC20(aUSDX).balanceOf(address(bond));
+        uint256 balanceInBondBefore = IERC20(aUSDX).balanceOf(address(bond));
         
-    //     vm.prank(bob);
-    //     vm.expectRevert(); // due to 0 yield its giving this error
-    //     bond.collectYield(address(aUSDX), bob);
+        vm.prank(bob);
+        vm.expectRevert(); // due to 0 yield its giving this error
+        bond.collectYield(address(aUSDX), bob);
 
-    //     (, , , , , bool _isBroken, bool _isWithdrawn, bool _isActive, bool _isFreezed) = bond.bond();
-    //     assert(balanceInBondBefore >= IERC20(aUSDX).balanceOf(address(bond)));
-    //     assert(balanceBefore <= IERC20(tokenList.usdx).balanceOf(bob));
-    //     assertFalse(_isBroken);
-    //     assertTrue(_isActive);
-    // }
+        (, , , , , bool _isBroken, bool _isWithdrawn, bool _isActive, bool _isFreezed) = bond.bond();
+        assert(balanceInBondBefore >= IERC20(aUSDX).balanceOf(address(bond)));
+        assert(balanceBefore <= IERC20(tokenList.usdx).balanceOf(bob));
+        assertFalse(_isBroken);
+        assertTrue(_isActive);
+    }
 
-    // function test_collateral(uint256 _stakeAmount) public {
+    function test_collateral(uint256 _stakeAmount) public {
 
-    //     testFuzz_stake(_stakeAmount);
+        testFuzz_stake(_stakeAmount);
 
-    //     vm.prank(bob);
-    //     bond.requestForCollateral();
+        vm.prank(bob);
+        bond.requestForCollateral();
 
-    //     vm.prank(bob);
-    //     vm.expectRevert();//same person cannot accept the collateral
-    //     bond.acceptForCollateral();
+        vm.prank(bob);
+        vm.expectRevert();//same person cannot accept the collateral
+        bond.acceptForCollateral();
 
-    //     vm.prank(alice);
-    //     bond.acceptForCollateral();
-    // }
+        vm.prank(alice);
+        bond.acceptForCollateral();
+    }
 }

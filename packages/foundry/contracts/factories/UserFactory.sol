@@ -51,26 +51,28 @@ contract UserFactory is IUserFactory, IUserFactorySwapables, Ownable2StepUpgrade
     return registry.addressToUserContracts(msg.sender);
   }
 
-  // function createUserWithBond(address user1,address user2,uint256 initialAmount) public payable returns (address){
-  //   bool user1Exists = registry.addressToUserContracts(user1) != address(0);
-  //   bool user2Exists = registry.addressToUserContracts(user2) != address(0);
-  //   if(!user1Exists){
-  //     createUserOnBehalf(user1);
-  //   }
-  //   if(!user2Exists){
-  //     createUserOnBehalf(user2);
-  //   }
 
 
-  // }
+  function createUserWithBond(address user1,address user2,uint256 initialAmount,address bondFactoryAddress,address yieldProviderService) public payable returns (address){
+    User protocolUser1 = User(createUserOnBehalf(user1));
+    User protocolUser2 = User(createUserOnBehalf(user2));
+    protocolUser1.createBond(_bond, bondFactoryAddress, yieldProviderService);
+    
+
+
+  }
 
   function createUserOnBehalf(address user) public payable override returns (address) {
     settings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);
-    IUser userContract = new User(address(identityRegistry), address(userSettings));
-    address userAddress = address(userContract);
-    registry.setUserContract(user, userAddress);
-    emit UserCreated(user, userAddress);
-    return userAddress;
+
+    if(registry.addressToUserContracts(user) == address(0)){
+      IUser protocolUser = new User(address(identityRegistry), address(userSettings));
+      address userAddress = address(protocolUser);
+      registry.setUserContract(user, userAddress);
+      emit UserCreated(user, userAddress);
+      return userAddress;
+    }
+    return registry.addressToUserContracts(user); 
   }
 
   function attestationManager() external view override returns (address) {}

@@ -44,10 +44,5 @@ interface IUser {
     ----------FUNCTIONS----------
     --------------------------
     */
-    function getBondDetails(address _bondAddress) external view returns (IBond.BondDetails memory);
-    function createBond(
-        IBond.BondDetails memory _bond,
-        address _bondFactoryAddress,
-        address _yieldProviderServiceAddress
-    ) external payable returns (address);
+
 }

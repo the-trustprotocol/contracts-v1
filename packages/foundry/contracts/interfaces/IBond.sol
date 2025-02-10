@@ -77,5 +77,6 @@ interface IBond {
     function requestForCollateral() external;
     function acceptForCollateral() external;
     function unfreeze() external;
+    function yieldServiceProvider() external view returns (address);
     function collectYield(address _aAsset, address _user) external;
 }

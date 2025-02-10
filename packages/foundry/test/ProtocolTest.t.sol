@@ -5,6 +5,8 @@ import { TestnetProcedures } from "@aave-v3-origin/tests/utils/TestnetProcedures
 
 import "../contracts/factories/UserFactory.sol";
 
+import { console } from "forge-std/console.sol";
+
 import "../contracts/settings/UserFactorySettings.sol";
 import "../contracts/settings/UserSettings.sol";
 import "../contracts/IdentityRegistry.sol";
@@ -13,6 +15,8 @@ import "../contracts/interfaces/IFeeSettings.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { BondFactory } from "../contracts/factories/BondFactory.sol";
 import { IBond } from "../contracts/interfaces/IBond.sol";
+
+import { Bond } from "../contracts/Bond.sol";
 import { YieldProviderService } from "../contracts/YieldProviderService.sol";
 
 contract ProtocolTest is TestnetProcedures {
@@ -46,14 +50,19 @@ contract ProtocolTest is TestnetProcedures {
     ERC1967Proxy public yieldProviderProxy;
     YieldProviderService public yieldProviderService;
 
+
+   
+
     User public aliceUser;
     User public bobUser;
 
     address public token;
+    address internal aUSDX;
 
     function setUp() public {
         initTestEnvironment();
         vm.startPrank(owner);
+        (aUSDX,,) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.usdx);
         settingsImpl = new UserFactorySettings();
         settingsProxy = new ERC1967Proxy(address(settingsImpl), "");
         settings = UserFactorySettings(address(settingsProxy));
@@ -68,6 +77,10 @@ contract ProtocolTest is TestnetProcedures {
         registry = Registry(address(registryProxy));
         registry.initialize("1.0");
 
+        bondFactory = new BondFactory();
+        bondFactoryProxy = new ERC1967Proxy(address(bondFactory), abi.encodeCall(BondFactory.initialize, ()));
+        bondFactory = BondFactory(address(bondFactoryProxy));
+
         userFactoryImpl = new UserFactory();
         userFactoryProxy = new ERC1967Proxy(
             address(userFactoryImpl),
@@ -78,30 +91,95 @@ contract ProtocolTest is TestnetProcedures {
         );
         userFactory = UserFactory(address(userFactoryProxy));
         registry.addTrustedUpdater(address(userFactory));
+
+        yieldProviderServiceImpl = new YieldProviderService();
+        yieldProviderProxy = new ERC1967Proxy(address(yieldProviderServiceImpl), abi.encodeCall(YieldProviderService.initialize, (address(contracts.poolProxy),aUSDX,tokenList.usdx)));
+        yieldProviderService = YieldProviderService(address(yieldProviderProxy));
+
         vm.stopPrank();
-
-        vm.prank(alice);
-        aliceUser = User(userFactory.createUser());
-
-        vm.prank(bob);
-        bobUser = User(userFactory.createUser());
-
         token = tokenList.usdx;
+
+
     }
 
-    function test_createUserWithTokenFees() public {
-        vm.startPrank(owner);
-        vm.deal(owner, 1 ether);
-        uint256 percentage = 100;
-        uint256 feeSent = 1 ether;
-        uint256 totalFee = 0.5 ether;
-        bytes4 functionBytes = IFeeSettings(address(settings)).getFunctionSelector("createUser()");
-        settings.registerFunctionFees(functionBytes, totalFee, percentage, address(0), treasury);
-        address user = userFactory.createUser{ value: feeSent }();
-        assertEq(user, registry.addressToUserContracts(owner));
-        uint256 expectedFee = ((feeSent * percentage) / 1000) + totalFee;
-        assertEq(treasury.balance, expectedFee);
-        assertEq(owner.balance, feeSent - expectedFee);
+    function test_create2UsersWithInitial() public {
+
+        vm.startPrank(alice);
+        uint256 initialStake = IERC20(token).balanceOf(alice);
+        console.log("initialStake", initialStake);
+        IERC20(token).approve(address(userFactory), initialStake);
+        userFactory.createUserWithBond(alice, bob, initialStake, address(bondFactory), address(yieldProviderService));
+        vm.stopPrank();
+        aliceUser = User(registry.addressToUserContracts(alice));
+        bobUser = User(registry.addressToUserContracts(bob));
+        
+        assertEq(aliceUser.owner(), alice);
+        assertEq(bobUser.owner(), bob);
+        assertEq(aliceUser.getAllBonds().length, 1);
+        Bond bond = Bond(aliceUser.getAllBonds()[0]);
+        assertEq(bond.individualPercentage(address(aliceUser)), 10000);
+        assertEq(bond.individualAmount(address(aliceUser)), initialStake);
+    }
+    function test_createBond() public {
+        vm.startPrank(alice);
+        uint256 initialStake = IERC20(token).balanceOf(alice);
+        console.log("initialStake", initialStake);
+        userFactory.createUserWithBond(alice, bob, 0, address(bondFactory), address(yieldProviderService));
+        aliceUser = User(registry.addressToUserContracts(alice));
+        bobUser = User(registry.addressToUserContracts(bob));
+        console.log("initialStake", initialStake);
+
+        IERC20(token).approve(address(aliceUser), initialStake);
+        aliceUser.createBond(bob, token, address(yieldProviderService), initialStake, address(bondFactory));
+
+        assertEq(aliceUser.owner(), alice);
+        assertEq(bobUser.owner(), bob);
+        assertEq(aliceUser.getAllBonds().length, 1);
+        Bond bond = Bond(aliceUser.getAllBonds()[0]);
+        assertEq(bond.individualPercentage(address(aliceUser)), 10000);
+        assertEq(bond.individualAmount(address(aliceUser)), initialStake);
         vm.stopPrank();
     }
+    function test_withdrawBond() public {
+        vm.startPrank(alice);
+        uint256 initialStake = IERC20(token).balanceOf(alice);
+        console.log("initialStake", initialStake);
+        IERC20(token).approve(address(userFactory), initialStake);
+        userFactory.createUserWithBond(alice, bob, initialStake, address(bondFactory), address(yieldProviderService));
+        aliceUser = User(registry.addressToUserContracts(alice));
+        Bond bond = Bond(aliceUser.getAllBonds()[0]);
+        aliceUser.withdraw(address(bond));
+        assertEq(IERC20(token).balanceOf(alice), initialStake);
+        assertEq(bond.individualAmount(address(aliceUser)), 0);
+        vm.stopPrank();
+
+    }
+    
+    function test_breakBond() public {
+        vm.startPrank(alice);
+        uint256 initialStake = IERC20(token).balanceOf(alice);
+        uint256 initialBalanceOfBob = IERC20(token).balanceOf(bob);
+        IERC20(token).approve(address(userFactory), initialStake);
+        userFactory.createUserWithBond(alice, bob, initialStake, address(bondFactory), address(yieldProviderService));
+        aliceUser = User(registry.addressToUserContracts(alice));
+        bobUser = User(registry.addressToUserContracts(bob));
+        
+        console.log("Bog user", address(bobUser));
+        console.log("Bog user again", userFactory.createUser(bob));
+        vm.stopPrank();
+        vm.startPrank(bob);
+        bobUser = User(registry.addressToUserContracts(bob));
+
+        Bond bond = Bond(aliceUser.getAllBonds()[0]);
+       
+        bobUser.breakBond(address(bond));
+        assertGe(IERC20(token).balanceOf(bob), initialBalanceOfBob);
+        assertEq(bond.individualAmount(address(aliceUser)), 0);
+        vm.stopPrank();
+       
+
+    }
+
+
+    
 }

@@ -8,70 +8,128 @@ import { IUser } from "./interfaces/IUser.sol";
 // import { Bond } from "./Bond.sol";
 import { IIdentityRegistry } from "./interfaces/IIdentityRegistry.sol";
 import { IIdentityResolver } from "./interfaces/IIdentityResolver.sol";
-
 import { IFeeSettings } from "./interfaces/IFeeSettings.sol";
-// import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { Ownable } from  "@openzeppelin/contracts/access/Ownable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract User is IUser {
-    mapping(address => IBond.BondDetails) private bondDetails;
-    address[] allBonds;
-    mapping(string => bool) private verifiedIdentities;
+import {UserFactory} from "./factories/UserFactory.sol";
 
-    UserDetails public user;
+import { IYieldProviderService } from "./interfaces/IYieldProviderService.sol";
+contract User is Ownable, IUser {
+  address[] allBonds;
+  mapping(string => bool) private verifiedIdentities;
 
-    IIdentityRegistry private identityRegistry;
-    IFeeSettings private feeSettings;
+  UserDetails public user;
 
-    mapping(string => string) public slashingWords;
+  UserFactory public userFactory;
 
-    constructor(address _identityRegistry, address _userWalletSettings) {
-        identityRegistry = IIdentityRegistry(_identityRegistry);
-        feeSettings = IFeeSettings(_userWalletSettings);
-        user = UserDetails({
-            userAddress: msg.sender,
-            totalBonds: 0,
-            totalAmount: 0,
-            totalWithdrawnBonds: 0,
-            totalBrokenBonds: 0,
-            totalActiveBonds: 0,
-            totalWithdrawnAmount: 0,
-            totalBrokenAmount: 0,
-            createdAt: block.timestamp
-        });
+  IIdentityRegistry private identityRegistry;
+  IFeeSettings private feeSettings;
 
-        emit UserCreated(msg.sender, block.timestamp);
-    }
+  mapping(string => string) public slashingWords;
 
-    /*
+  constructor(
+    address _user,
+    address _identityRegistry,
+    address _userWalletSettings,
+    address _userFactory
+  ) Ownable(_user) {
+    identityRegistry = IIdentityRegistry(_identityRegistry);
+    feeSettings = IFeeSettings(_userWalletSettings);
+    userFactory = UserFactory(_userFactory);
+    user = UserDetails({
+      userAddress: _user,
+      totalBonds: 0,
+      totalAmount: 0,
+      totalWithdrawnBonds: 0,
+      totalBrokenBonds: 0,
+      totalActiveBonds: 0,
+      totalWithdrawnAmount: 0,
+      totalBrokenAmount: 0,
+      createdAt: block.timestamp
+    });
+
+    emit UserCreated(msg.sender, block.timestamp);
+  }
+
+  /*
     ----------------------------------
     ------EXTERNAL OPEN FUNCTIONS-----
     ----------------------------------
     */
+  function createBond(
+    address partner,
+    address asset,
+    address yieldServiceProvider,
+    uint256 initialAmount,
+    address bondFactoryAddresss
+  ) public payable onlyOwner returns (address) {
+    IBondFactory bondFactory = IBondFactory(bondFactoryAddresss);
+    address partnerUserAddress = userFactory.createUser(partner);
+    address newBond = bondFactory.createBond(asset, address(this), partnerUserAddress, yieldServiceProvider);
+    allBonds.push(newBond);
 
-    function createBond(
-        IBond.BondDetails memory _bond,
-        address _bondFactoryAddress,
-        address _yieldProviderServiceAddress
-    ) external payable override returns (address) {
-        feeSettings.collectFees{ value: msg.value }(msg.sender, msg.value, msg.sig);
-
-        IBondFactory bondFactory = IBondFactory(_bondFactoryAddress);
-        address newBond = bondFactory.createBond(_bond.asset, _bond.user1, _bond.user2, _yieldProviderServiceAddress);
-
-        bondDetails[newBond] = _bond;
-        emit BondDeployed(_bond.asset, _bond.user1, _bond.user2, _bond.totalBondAmount, block.timestamp);
-        return newBond;
+    if (initialAmount > 0) {
+      IBond bond = IBond(newBond);
+      IERC20(IYieldProviderService(yieldServiceProvider).depositToken()).transferFrom(
+        msg.sender,
+        address(this),
+        initialAmount
+      );
+      IERC20(IYieldProviderService(yieldServiceProvider).depositToken()).approve(address(bond), initialAmount);
+      bond.stake(address(this), initialAmount);
     }
+    return newBond;
+  }
 
-    function getBondDetails(address _bondAddress) external view returns (IBond.BondDetails memory) {
-        return bondDetails[_bondAddress];
-    }
+  function stake(address bondAddress, uint256 amount) public payable onlyOwner {
+    IBond bond = IBond(bondAddress);
+    IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken()).transferFrom(
+      msg.sender,
+      address(this),
+      amount
+    );
+    IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken()).approve(bondAddress, amount);
+    bond.stake(address(this), amount);
+  }
 
-    function verifyIdentity(string calldata identityTag, bytes calldata data) external returns (bool) {
-        address resolver = identityRegistry.getResolver(identityTag);
-        if (resolver == address(0)) revert ResolverNotFound();
-        bool verified = IIdentityResolver(resolver).verify(data);
-        verifiedIdentities[identityTag] = verified;
-        return verified;
+  function withdraw(address bondAddress) public payable onlyOwner {
+    IBond bond = IBond(bondAddress);
+    bond.withdraw(address(this));
+    uint256 balance = IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken()).balanceOf(
+      address(this)
+    );
+    IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken()).transfer(owner(), balance);
+  }
+
+  function breakBond(address bondAddress) public payable onlyOwner {
+    IBond bond = IBond(bondAddress);
+    bond.breakBond(address(this));
+    uint256 balance = IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken()).balanceOf(
+      address(this)
+    );
+    IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken()).transfer(owner(), balance);
+  }
+
+  function transferOwnership(address newOwner) public virtual override onlyOwner {
+    if (newOwner == address(0)) {
+      revert OwnableInvalidOwner(address(0));
     }
+    user.userAddress = newOwner;
+    _transferOwnership(newOwner);
+  }
+
+  function getAllBonds() public view returns (address[] memory) {
+    return allBonds;
+  }
+
+  function verifyIdentity(string calldata identityTag, bytes calldata data) external returns (bool) {
+    address resolver = identityRegistry.getResolver(identityTag);
+    if (resolver == address(0)) revert ResolverNotFound();
+    bool verified = IIdentityResolver(resolver).verify(data);
+    verifiedIdentities[identityTag] = verified;
+    return verified;
+  }
+
+  
 }

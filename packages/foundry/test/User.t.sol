@@ -75,46 +75,12 @@ contract UserTest is TestnetProcedures {
         console.log(owner);
         console.log("this address", address(this));
         console.log("yps address", address(aaveYieldServiceProvider));
-        userImpl = new User(address(identityRegistryImpl), address(feeSettingsImpl));
+        userImpl = new User(owner,address(identityRegistryImpl), address(feeSettingsImpl),address(0));
 
         vm.stopPrank();
     }
 
-    function test_createBond() public {
-        vm.startPrank(owner);
-        YieldProviderService ypsAddress = aaveYieldServiceProvider.yieldProviderService();
-
-        vm.startPrank(alice);
-        IERC20(tokenList.usdx).approve(address(userImpl), 1000);
-        IERC20(tokenList.usdx).approve(address(bondFactoryImpl), 1000);
-        bondAddress = userImpl.createBond(
-            IBond.BondDetails({
-                asset: tokenList.usdx,
-                user1: alice,
-                user2: bob,
-                totalBondAmount: 1000,
-                createdAt: block.timestamp,
-                isBroken: false,
-                isWithdrawn: false,
-                isActive: true,
-                isFreezed: false
-            }),
-            address(bondFactoryImpl),
-            address(ypsAddress)
-        );
-        vm.stopPrank();
-    }
-
-    function test_getBondDetails() public {
-        test_createBond();
-
-        IBond.BondDetails memory bondDetails = userImpl.getBondDetails(bondAddress);
-        assertEq(bondDetails.totalBondAmount, 1000);
-        assertEq(bondDetails.user1, alice);
-        assertEq(bondDetails.user2, bob);
-        assertEq(bondDetails.asset, tokenList.usdx);
-    }
-
+  
     function test_verifyIdentity() public {
         vm.startPrank(owner);
         console.log("address", address(new VerifyIfTrue()));

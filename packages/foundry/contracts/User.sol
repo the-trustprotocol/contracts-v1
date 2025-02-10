@@ -68,7 +68,7 @@ contract User is Ownable, IUser {
     address partnerUserAddress = userFactory.createUser(partner);
     address newBond = bondFactory.createBond(asset, address(this), partnerUserAddress, yieldServiceProvider);
     allBonds.push(newBond);
-
+    User(partnerUserAddress).addBond(newBond);
     if (initialAmount > 0) {
       IBond bond = IBond(newBond);
       IERC20(IYieldProviderService(yieldServiceProvider).depositToken()).transferFrom(
@@ -91,6 +91,10 @@ contract User is Ownable, IUser {
     );
     IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken()).approve(bondAddress, amount);
     bond.stake(address(this), amount);
+  }
+
+  function addBond(address bondAddress) public  {
+    allBonds.push(bondAddress);
   }
 
   function withdraw(address bondAddress) public payable onlyOwner {

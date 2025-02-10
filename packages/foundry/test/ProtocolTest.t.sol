@@ -135,6 +135,7 @@ contract ProtocolTest is TestnetProcedures {
         assertEq(aliceUser.owner(), alice);
         assertEq(bobUser.owner(), bob);
         assertEq(aliceUser.getAllBonds().length, 1);
+        assertEq(bobUser.getAllBonds().length, 1);
         Bond bond = Bond(aliceUser.getAllBonds()[0]);
         assertEq(bond.individualPercentage(address(aliceUser)), 10000);
         assertEq(bond.individualAmount(address(aliceUser)), initialStake);

@@ -2,30 +2,29 @@
 
 pragma solidity ^0.8.13;
 
-import {Test} from "forge-std/Test.sol";
+import { Test } from "forge-std/Test.sol";
 
-import {console} from "forge-std/console.sol";
+import { console } from "forge-std/console.sol";
 import { IFeeSettings } from "../contracts/interfaces/IFeeSettings.sol";
 import { IIdentityRegistry } from "../contracts/interfaces/IIdentityRegistry.sol";
 
-import {FeeSettings} from "../contracts/settings/FeeSettings.sol";
-import {IdentityRegistry} from "../contracts/IdentityRegistry.sol";
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import {User} from "../contracts/User.sol";
+import { FeeSettings } from "../contracts/settings/FeeSettings.sol";
+import { IdentityRegistry } from "../contracts/IdentityRegistry.sol";
+import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { User } from "../contracts/User.sol";
 
-import {BondFactory} from "../contracts/factories/BondFactory.sol";
-import {YieldProviderService} from "../contracts/YieldProviderService.sol";
-import {Bond} from "../contracts/Bond.sol";
-import {IBond} from "../contracts/interfaces/IBond.sol";
+import { BondFactory } from "../contracts/factories/BondFactory.sol";
+import { YieldProviderService } from "../contracts/YieldProviderService.sol";
+import { Bond } from "../contracts/Bond.sol";
+import { IBond } from "../contracts/interfaces/IBond.sol";
 
-import {AaveYieldServiceProvider} from "./AaveYieldServiceProvider.t.sol";
-import {TestnetProcedures} from "@aave-v3-origin/tests/utils/TestnetProcedures.sol";
+import { AaveYieldServiceProvider } from "./AaveYieldServiceProvider.t.sol";
+import { TestnetProcedures } from "@aave-v3-origin/tests/utils/TestnetProcedures.sol";
 import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
-import {VerifyIfTrue} from "../contracts/identity-resolvers/VerifyIfTrue.sol";
+import { VerifyIfTrue } from "../contracts/identity-resolvers/VerifyIfTrue.sol";
 
 contract UserTest is TestnetProcedures {
-
     IdentityRegistry public identityRegistryImpl;
     ERC1967Proxy public identityRegistryProxy;
 
@@ -47,11 +46,10 @@ contract UserTest is TestnetProcedures {
     address internal aWBTC;
 
     function setUp() public {
-
         initTestEnvironment();
 
-        (aUSDX, , ) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.usdx);
-        (aWBTC, , ) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.wbtc);
+        (aUSDX,,) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.usdx);
+        (aWBTC,,) = contracts.protocolDataProvider.getReserveTokensAddresses(tokenList.wbtc);
 
         aaveYieldServiceProvider = new AaveYieldServiceProvider();
         aaveYieldServiceProvider.setUp();
@@ -72,46 +70,42 @@ contract UserTest is TestnetProcedures {
         bondFactoryImpl = BondFactory(address(bondFactoryProxy));
         bondFactoryImpl.initialize();
 
-
         console.log("bondFactoryImpl", address(bondFactoryImpl));
 
         console.log(owner);
         console.log("this address", address(this));
         console.log("yps address", address(aaveYieldServiceProvider));
         userImpl = new User(address(identityRegistryImpl), address(feeSettingsImpl));
-        
-        vm.stopPrank();
 
+        vm.stopPrank();
     }
 
     function test_createBond() public {
-
         vm.startPrank(owner);
         YieldProviderService ypsAddress = aaveYieldServiceProvider.yieldProviderService();
-        
+
         vm.startPrank(alice);
         IERC20(tokenList.usdx).approve(address(userImpl), 1000);
         IERC20(tokenList.usdx).approve(address(bondFactoryImpl), 1000);
         bondAddress = userImpl.createBond(
-                IBond.BondDetails({
-                    asset: tokenList.usdx,
-                    user1: alice,
-                    user2: bob,
-                    totalBondAmount: 1000,
-                    createdAt: block.timestamp,
-                    isBroken: false,
-                    isWithdrawn: false,
-                    isActive: true,
-                    isFreezed: false            
-                }),
-                address(bondFactoryImpl),
-                address(ypsAddress)
+            IBond.BondDetails({
+                asset: tokenList.usdx,
+                user1: alice,
+                user2: bob,
+                totalBondAmount: 1000,
+                createdAt: block.timestamp,
+                isBroken: false,
+                isWithdrawn: false,
+                isActive: true,
+                isFreezed: false
+            }),
+            address(bondFactoryImpl),
+            address(ypsAddress)
         );
         vm.stopPrank();
-    } 
+    }
 
     function test_getBondDetails() public {
-
         test_createBond();
 
         IBond.BondDetails memory bondDetails = userImpl.getBondDetails(bondAddress);

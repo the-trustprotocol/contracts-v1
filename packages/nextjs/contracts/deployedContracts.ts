@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   8453: {
     BondFactory: {
-      address: "0xe0363c41279206c7544be3d7ca7413fd2e298dda",
+      address: "0x3fc32fc47526fc5875d3386ca393a8b5fe81f277",
       abi: [
         {
           type: "constructor",
@@ -298,11 +298,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
     ERC1967Proxy: {
-      address: "0x3c072887156e45f30c9ef5db736d3ece07933cbb",
+      address: "0xf84b8ab13f6fe0f6aa72fbd8bd7f20d3a4a152ee",
       abi: [
         {
           type: "constructor",
@@ -371,11 +371,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
     YieldProviderService: {
-      address: "0x99337128ecbc14d91a2e8140ee9b0548b02e02fc",
+      address: "0xdffbef35208180e0c26ddf1eba8ee0a31044f932",
       abi: [
         {
           type: "constructor",
@@ -752,11 +752,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
     UserFactorySettings: {
-      address: "0x1607ec527781f4de4b3acd866d8ba1abaf261bf0",
+      address: "0x59466edb8d5c7df0b0f45e1d4de08e17775d7f79",
       abi: [
         {
           type: "constructor",
@@ -1224,11 +1224,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
     UserSettings: {
-      address: "0xa4de1d466f4e3d24b681ef404d4c9236d299de9b",
+      address: "0x89f40f6c70fce3948f41333bb547c92e98206e01",
       abi: [
         {
           type: "constructor",
@@ -1696,11 +1696,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
     Registry: {
-      address: "0xed720b5476daf3b995dc1059002b193be06df79e",
+      address: "0x395e370d3593220ce76c9f74f4263221296758b6",
       abi: [
         {
           type: "constructor",
@@ -2142,11 +2142,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
     IdentityRegistry: {
-      address: "0x4a3b9f0088bc1078bba8a01648fc990cc53fcf77",
+      address: "0x733fac9859ce7df6e85dba1e930fe569fe9386ad",
       abi: [
         {
           type: "constructor",
@@ -2468,11 +2468,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
     UserFactory: {
-      address: "0x15bb232c6121a9ef9f5eb487660b412beeb9c6bc",
+      address: "0xd9454d87ae83c51a31cb6f7492650e31c92ce100",
       abi: [
         {
           type: "constructor",
@@ -2944,8 +2944,8 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739220236.json",
-      deploymentScript: "DeployV1.s.sol",
+      deploymentFile: "run-1739265817.json",
+      deploymentScript: "DeployV1_1.s.sol",
     },
   },
 } as const;

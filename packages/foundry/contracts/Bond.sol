@@ -11,7 +11,6 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 
 contract Bond is IBond, ReentrancyGuard {
     address public collateralRequestedBy;
-    address public user2;
     uint256 public constant MAX_BPS = 10000;
 
     mapping(address => uint256) public individualAmount;
@@ -39,7 +38,6 @@ contract Bond is IBond, ReentrancyGuard {
         individualPercentage[_user1] = 100;
         isUser[_user1] = true;
         isUser[_user2] = true;
-        user2 = _user2;
         yps = IYieldProviderService(_yieldProviderServiceAddress);
         emit BondCreated(address(this), _user1, _user2, 0, block.timestamp);
     }
@@ -73,7 +71,7 @@ contract Bond is IBond, ReentrancyGuard {
         uint256 withdrawable = individualAmount[_user] + claimableYield[_user];
         individualAmount[_user] = 0;
         bond.isWithdrawn = true;
-        // bond.isActive = false;
+       
         IERC20(yps.yieldToken()).approve(address(yps), withdrawable);
         yps.withdraw(address(this), withdrawable, _user);
         emit BondWithdrawn(address(this), bond.user1, bond.user2, msg.sender, bond.totalBondAmount, block.timestamp);

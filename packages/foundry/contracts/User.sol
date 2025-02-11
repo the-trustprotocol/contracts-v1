@@ -68,6 +68,7 @@ contract User is Ownable, IUser {
         allBonds.push(newBond);
         user.totalBonds += 1;
         user.totalActiveBonds += 1;
+        user.totalAmount += initialAmount;
 
         User(partnerUserAddress).addBond(newBond);
         if (initialAmount > 0) {

@@ -69,8 +69,4 @@ contract UserFactoryTest is Test {
         registry.addTrustedUpdater(address(userFactory));
         vm.stopPrank();
     }
-
-  
-
-   
 }

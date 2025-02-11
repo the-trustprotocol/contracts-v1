@@ -50,9 +50,6 @@ contract ProtocolTest is TestnetProcedures {
     ERC1967Proxy public yieldProviderProxy;
     YieldProviderService public yieldProviderService;
 
-
-   
-
     User public aliceUser;
     User public bobUser;
 
@@ -93,17 +90,17 @@ contract ProtocolTest is TestnetProcedures {
         registry.addTrustedUpdater(address(userFactory));
 
         yieldProviderServiceImpl = new YieldProviderService();
-        yieldProviderProxy = new ERC1967Proxy(address(yieldProviderServiceImpl), abi.encodeCall(YieldProviderService.initialize, (address(contracts.poolProxy),aUSDX,tokenList.usdx)));
+        yieldProviderProxy = new ERC1967Proxy(
+            address(yieldProviderServiceImpl),
+            abi.encodeCall(YieldProviderService.initialize, (address(contracts.poolProxy), aUSDX, tokenList.usdx))
+        );
         yieldProviderService = YieldProviderService(address(yieldProviderProxy));
 
         vm.stopPrank();
         token = tokenList.usdx;
-
-
     }
 
     function test_create2UsersWithInitial() public {
-
         vm.startPrank(alice);
         uint256 initialStake = IERC20(token).balanceOf(alice);
         console.log("initialStake", initialStake);
@@ -112,7 +109,7 @@ contract ProtocolTest is TestnetProcedures {
         vm.stopPrank();
         aliceUser = User(registry.addressToUserContracts(alice));
         bobUser = User(registry.addressToUserContracts(bob));
-        
+
         assertEq(aliceUser.owner(), alice);
         assertEq(bobUser.owner(), bob);
         assertEq(aliceUser.getAllBonds().length, 1);
@@ -120,6 +117,7 @@ contract ProtocolTest is TestnetProcedures {
         assertEq(bond.individualPercentage(address(aliceUser)), 10000);
         assertEq(bond.individualAmount(address(aliceUser)), initialStake);
     }
+
     function test_createBond() public {
         vm.startPrank(alice);
         uint256 initialStake = IERC20(token).balanceOf(alice);
@@ -141,6 +139,7 @@ contract ProtocolTest is TestnetProcedures {
         assertEq(bond.individualAmount(address(aliceUser)), initialStake);
         vm.stopPrank();
     }
+
     function test_withdrawBond() public {
         vm.startPrank(alice);
         uint256 initialStake = IERC20(token).balanceOf(alice);
@@ -153,9 +152,8 @@ contract ProtocolTest is TestnetProcedures {
         assertEq(IERC20(token).balanceOf(alice), initialStake);
         assertEq(bond.individualAmount(address(aliceUser)), 0);
         vm.stopPrank();
-
     }
-    
+
     function test_breakBond() public {
         vm.startPrank(alice);
         uint256 initialStake = IERC20(token).balanceOf(alice);
@@ -164,7 +162,7 @@ contract ProtocolTest is TestnetProcedures {
         userFactory.createUserWithBond(alice, bob, initialStake, address(bondFactory), address(yieldProviderService));
         aliceUser = User(registry.addressToUserContracts(alice));
         bobUser = User(registry.addressToUserContracts(bob));
-        
+
         console.log("Bog user", address(bobUser));
         console.log("Bog user again", userFactory.createUser(bob));
         vm.stopPrank();
@@ -172,15 +170,10 @@ contract ProtocolTest is TestnetProcedures {
         bobUser = User(registry.addressToUserContracts(bob));
 
         Bond bond = Bond(aliceUser.getAllBonds()[0]);
-       
+
         bobUser.breakBond(address(bond));
         assertGe(IERC20(token).balanceOf(bob), initialBalanceOfBob);
         assertEq(bond.individualAmount(address(aliceUser)), 0);
         vm.stopPrank();
-       
-
     }
-
-
-    
 }

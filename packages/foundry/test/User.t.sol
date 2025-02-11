@@ -75,12 +75,11 @@ contract UserTest is TestnetProcedures {
         console.log(owner);
         console.log("this address", address(this));
         console.log("yps address", address(aaveYieldServiceProvider));
-        userImpl = new User(owner,address(identityRegistryImpl), address(feeSettingsImpl),address(0));
+        userImpl = new User(owner, address(identityRegistryImpl), address(feeSettingsImpl), address(0));
 
         vm.stopPrank();
     }
 
-  
     function test_verifyIdentity() public {
         vm.startPrank(owner);
         console.log("address", address(new VerifyIfTrue()));

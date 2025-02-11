@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   8453: {
     BondFactory: {
-      address: "0x977a103d7adc28da0057116d5d0a668a17bd90c2",
+      address: "0x409e4d0a274761f9f919d28e44cdca0460225582",
       abi: [
         {
           type: "constructor",
@@ -298,11 +298,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739282817.json",
-      deploymentScript: "DeployV1_2.s.sol",
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
     ERC1967Proxy: {
-      address: "0xf84b8ab13f6fe0f6aa72fbd8bd7f20d3a4a152ee",
+      address: "0xdb190e7eb6411a01bd0ea91941385e04c36c8dd4",
       abi: [
         {
           type: "constructor",
@@ -371,11 +371,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739265817.json",
-      deploymentScript: "DeployV1_1.s.sol",
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
     YieldProviderService: {
-      address: "0x9c75e4971d98c6d9b7ebac671a474e389bf20fa6",
+      address: "0x70cf64a2f2af1b27adff5d44416c3d77e8af2db8",
       abi: [
         {
           type: "constructor",
@@ -752,11 +752,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739282817.json",
-      deploymentScript: "DeployV1_2.s.sol",
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
     UserFactorySettings: {
-      address: "0x08bc1403556983917dbb89c5f60548e3edd64655",
+      address: "0x86c69e38f36c9723cc78ce3b36b666bd82992f21",
       abi: [
         {
           type: "constructor",
@@ -1224,11 +1224,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739282817.json",
-      deploymentScript: "DeployV1_2.s.sol",
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
     UserSettings: {
-      address: "0x30850de03579c18e2679095b697080452dc0d9c2",
+      address: "0x97addc4d4906a92348d89b7ee68776e9f1eaabb5",
       abi: [
         {
           type: "constructor",
@@ -1696,11 +1696,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739282817.json",
-      deploymentScript: "DeployV1_2.s.sol",
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
     Registry: {
-      address: "0x395e370d3593220ce76c9f74f4263221296758b6",
+      address: "0x17be66a94b603a96ce1115309424f87d389429fb",
       abi: [
         {
           type: "constructor",
@@ -2141,35 +2141,12 @@ const deployedContracts = {
           inputs: [],
         },
       ],
-      inheritedFunctions: {
-        addTrustedUpdater: "contracts/interfaces/IRegistry.sol",
-        addressToUserContracts: "contracts/interfaces/IRegistry.sol",
-        isTrustedUpdater: "contracts/interfaces/IRegistry.sol",
-        removeTrustedUpdater: "contracts/interfaces/IRegistry.sol",
-        setUserContract: "contracts/interfaces/IRegistry.sol",
-        trustedUpdaters: "contracts/interfaces/IRegistry.sol",
-        acceptOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol",
-        pendingOwner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol",
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-      },
-      deploymentFile: "run-1739265817.json",
-      deploymentScript: "DeployV1_1.s.sol",
+      inheritedFunctions: {},
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
     IdentityRegistry: {
-      address: "0x733fac9859ce7df6e85dba1e930fe569fe9386ad",
+      address: "0x535c019ecbb0e0b30b412186f362ff8bfdc8f65c",
       abi: [
         {
           type: "constructor",
@@ -2490,25 +2467,12 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-      },
-      deploymentFile: "run-1739265817.json",
-      deploymentScript: "DeployV1_1.s.sol",
+      inheritedFunctions: {},
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
     UserFactory: {
-      address: "0xa0a4e3f90505bf2182fdf6f62b78b902c5c02fb3",
+      address: "0x365dde18da5ce1cc742d46e08ad2e3405895e1bd",
       abi: [
         {
           type: "constructor",
@@ -2980,8 +2944,8 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739282817.json",
-      deploymentScript: "DeployV1_2.s.sol",
+      deploymentFile: "run-1739283754.json",
+      deploymentScript: "DeployV1_3.s.sol",
     },
   },
 } as const;

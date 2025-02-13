@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     BondFactory: {
-      address: "0x783ee809ae6b7d08d2c7e76dc1ee7b00772b7894",
+      address: "0x30850de03579c18e2679095b697080452dc0d9c2",
       abi: [
         {
           type: "constructor",
@@ -298,11 +298,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
     ERC1967Proxy: {
-      address: "0xa4de1d466f4e3d24b681ef404d4c9236d299de9b",
+      address: "0xae8b9251f8d94af41654f5b41e973ffcd5b45a89",
       abi: [
         {
           type: "constructor",
@@ -371,11 +371,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
     YieldProviderService: {
-      address: "0x1b7f4f77e1cf2309d004a902e6923935796468e5",
+      address: "0x3b0b1655ac8b28e33ccdebc22b94a16efda76d3b",
       abi: [
         {
           type: "constructor",
@@ -752,11 +752,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
     UserFactorySettings: {
-      address: "0xe4320bd5bcaa47c41a63b46a1d4bea102ef8dca1",
+      address: "0x03f95421a42ead47a5b07c3967541dbb0ee5d5d2",
       abi: [
         {
           type: "constructor",
@@ -1224,11 +1224,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
     UserSettings: {
-      address: "0xe2429c50b0a4b554a660ad3c0e5ce733971e4acf",
+      address: "0xa0a4e3f90505bf2182fdf6f62b78b902c5c02fb3",
       abi: [
         {
           type: "constructor",
@@ -1696,11 +1696,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
     Registry: {
-      address: "0x56618eceee8e381de98448d321d94259d6241509",
+      address: "0xfc2f58019bb5b99253203b8cc304b9aaf864a1eb",
       abi: [
         {
           type: "constructor",
@@ -2142,11 +2142,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
     IdentityRegistry: {
-      address: "0x714e930228ac56e67bb7a93b2711e49f91cd3cd8",
+      address: "0x9527613f5b6223e92ece56df2c4810357a2a2a2e",
       abi: [
         {
           type: "constructor",
@@ -2468,11 +2468,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
     UserFactory: {
-      address: "0x3fc32fc47526fc5875d3386ca393a8b5fe81f277",
+      address: "0x9178309cb624cb0c38f6df15e2e96e26d13bc804",
       abi: [
         {
           type: "constructor",
@@ -2944,8 +2944,8 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739450378.json",
-      deploymentScript: "DeployV1_3Sepolia.s.sol",
+      deploymentFile: "run-1739478147.json",
+      deploymentScript: "DeployV1_4Sepolia.s.sol",
     },
   },
 } as const;

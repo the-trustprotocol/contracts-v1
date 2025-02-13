@@ -111,12 +111,12 @@ contract User is Ownable, IUser {
 
     function breakBond(address bondAddress) public payable onlyOwner {
         IBond bond = IBond(bondAddress);
+        bond.breakBond(address(this));
         IERC20 depositToken = IERC20(IYieldProviderService(bond.yieldServiceProvider()).depositToken());
         uint256 balance = depositToken.balanceOf(address(this));
         user.totalBrokenBonds += 1;
         user.totalActiveBonds -= 1;
         user.totalBrokenAmount += balance;
-        bond.breakBond(address(this));
         depositToken.transfer(owner(), balance);
     }
 
